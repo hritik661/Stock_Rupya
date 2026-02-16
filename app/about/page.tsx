@@ -103,7 +103,12 @@ export default function AboutPage() {
         {/* Centered StockRupya Logo + Welcome Banner (visible on all screen sizes) */}
         <div className="flex justify-center mb-3 md:mb-4">
           <div className="logo-wrap">
-            <img src="/rupya.png" alt="StockRupya Logo" className="h-20 sm:h-28 md:h-48 w-auto sparkle-anim" style={{ filter: 'brightness(0) saturate(100%)' }} />
+            <img
+              src="/rupya.png"
+              alt="StockRupya Logo"
+              className="h-20 sm:h-28 md:h-48 w-auto sparkle-anim"
+              style={{ filter: 'brightness(1.15) saturate(1.2) drop-shadow(0 12px 24px rgba(0,0,0,0.6))' }}
+            />
           </div>
         </div>
         <div className="flex justify-center mb-6 md:mb-12">
