@@ -3,6 +3,7 @@
 import { Sparkles, TrendingUp, Brain, Zap, X, Check } from "lucide-react"
 import React, { useState, useRef } from 'react';
 import { useAuth } from "@/contexts/auth-context"
+import { formatCurrency } from "@/lib/market-utils"
 
 
 const handlePredictionClick = async (
@@ -258,7 +259,7 @@ export default function PredictionsHero() {
             <div className="bg-card rounded-xl p-6 max-w-sm w-full">
               <h3 className="text-lg font-bold mb-2">Proceed to Payment</h3>
               <p className="text-sm text-muted-foreground mb-4">Your current balance:</p>
-              <p className="text-2xl font-extrabold text-foreground mb-4">₹{user?.balance?.toLocaleString() || 0}</p>
+              <p className="text-2xl font-extrabold text-foreground mb-4">{formatCurrency(Number(user?.balance || 0))}</p>
               <div className="flex gap-3">
                 <button
                   className="flex-1 bg-primary text-white px-4 py-2 rounded-md font-bold"

@@ -75,17 +75,14 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
       <div className="container mx-auto px-3 md:px-3 py-2 md:py-2">
         <div className="flex items-center gap-2 md:gap-3 flex-nowrap">
           {/* Brand - show compact logo on landing pages (all screen sizes) */}
-          <Link href="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity">
-            {isLandingPage ? (
-              <div className="relative flex-shrink-0" style={{ display: 'inline-block' }}>
-                <div style={{ position: 'absolute', inset: '-8px', borderRadius: 12, background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.14), rgba(34,197,94,0.04) 30%, transparent 60%)', filter: 'blur(12px)', zIndex: 0, pointerEvents: 'none' }} />
-                <img src="/rupya.png" alt="StockRupya" className="h-8 md:h-10 w-auto relative z-10 flex-shrink-0 sparkle-anim" />
-              </div>
-            ) : (
-              <span className="text-[10px] sm:text-xs md:text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent whitespace-nowrap">
-                StockRupya
-              </span>
-            )}
+          <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <div className="relative flex-shrink-0" style={{ display: 'inline-block' }}>
+              <div style={{ position: 'absolute', inset: '-8px', borderRadius: 12, background: 'radial-gradient(ellipse at center, rgba(34,197,94,0.14), rgba(34,197,94,0.04) 30%, transparent 60%)', filter: 'blur(12px)', zIndex: 0, pointerEvents: 'none' }} />
+              <img src="/rupya.png" alt="StockRupya" className="h-8 md:h-10 w-auto relative z-10 flex-shrink-0 sparkle-anim" />
+            </div>
+            <span className="text-[10px] sm:text-xs md:text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent whitespace-nowrap">
+              StockRupya
+            </span>
           </Link>
 
           {/* Search Bar - moved right after logo */}
