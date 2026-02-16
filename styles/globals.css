@@ -1,0 +1,551 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 220ms ease, color 220ms ease;
+  }
+}
+
+/* Container utility for consistent layout */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Responsive typography */
+h1 { font-size: clamp(1.75rem, 2.5vw + 0.5rem, 3.5rem); line-height: 1.05; }
+h2 { font-size: clamp(1.25rem, 2vw + 0.25rem, 2rem); }
+p, li, span, a { line-height: 1.6; }
+
+/* Subtle 3D accent for cards and panels */
+.card-3d {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+  box-shadow: 0 6px 20px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.02);
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* Login page animated blobs and card entrance */
+.login-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.75;
+  transform: translate3d(0,0,0);
+  will-change: transform, opacity;
+}
+
+.login-blob--one {
+  width: 520px;
+  height: 520px;
+  right: -120px;
+  top: -80px;
+  background: radial-gradient(circle at 30% 30%, rgba(16,185,129,0.95), rgba(16,185,129,0.55) 35%, rgba(16,185,129,0.08) 60%, transparent 70%);
+  animation: float-blob 10s ease-in-out infinite;
+}
+
+.login-blob--two {
+  width: 420px;
+  height: 420px;
+  left: -120px;
+  bottom: -100px;
+  background: radial-gradient(circle at 70% 70%, rgba(59,130,246,0.9), rgba(59,130,246,0.45) 35%, rgba(99,102,241,0.08) 60%, transparent 70%);
+  animation: float-blob 12s ease-in-out infinite reverse;
+}
+
+@keyframes float-blob {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  35% { transform: translateY(-18px) translateX(12px) scale(1.02); }
+  70% { transform: translateY(8px) translateX(-8px) scale(0.98); }
+  100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+.login-card-entrance {
+  animation: pop-in 560ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(22px) scale(0.985); }
+  60% { opacity: 1; transform: translateY(-6px) scale(1.006); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Left panel entrance + subtle float to make UI feel alive */
+.left-panel-entrance {
+  animation: left-slide-in 640ms cubic-bezier(.2,.9,.2,1) both, left-float 6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes left-slide-in {
+  0% { opacity: 0; transform: translateX(-26px) scale(0.99); }
+  60% { opacity: 1; transform: translateX(6px) scale(1.01); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes left-float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+.left-panel-icon {
+  transition: transform 360ms cubic-bezier(.2,.9,.2,1), box-shadow 360ms;
+}
+.left-panel-icon:hover { transform: translateY(-6px) scale(1.05); box-shadow: 0 20px 45px rgba(2,6,23,0.45); }
+
+.login-backdrop {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));
+  backdrop-filter: blur(8px) saturate(120%);
+  box-shadow: 0 12px 40px rgba(2,6,23,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+  border-radius: 14px;
+}
+
+/* Compact login card wrapper with animated gradient border */
+.compact-login-wrapper {
+  position: fixed;
+  top: 96px;
+  right: 28px;
+  display: inline-block;
+  border-radius: 16px;
+  z-index: 60;
+  will-change: transform, opacity;
+  animation: compact-slide-in 520ms cubic-bezier(.2,.9,.2,1) both;
+}
+.compact-login-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(16,185,129,0.18), rgba(6,182,212,0.12), rgba(59,130,246,0.12));
+  filter: blur(8px);
+  opacity: 0.9;
+  z-index: 0;
+  pointer-events: none;
+  animation: border-glow 3.6s linear infinite;
+}
+.compact-login-card {
+  position: relative;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
+  transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms;
+}
+.compact-login-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(2,6,23,0.6);
+}
+
+/* make the compact card visually pop with stronger glass, border and subtle backdrop */
+.compact-login-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+  backdrop-filter: blur(6px) saturate(120%);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(2,6,23,0.6);
+}
+
+@keyframes compact-slide-in {
+  0% { opacity: 0; transform: translateY(-12px) translateX(12px) scale(0.98); }
+  60% { opacity: 1; transform: translateY(6px) translateX(-6px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+}
+
+/* on small screens, pin to top center and make full width */
+@media (max-width: 768px) {
+  .compact-login-wrapper {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    margin: 0 auto;
+    display: block;
+    z-index: 70;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+  }
+  .compact-login-card { width: auto !important; max-width: none !important; }
+}
+
+/* Close button for compact login on mobile */
+.compact-login-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--color-muted-foreground);
+}
+.compact-login-close:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
+
+/* Make compact card content fit nicely on small viewports */
+.compact-login-card { box-sizing: border-box; padding: 14px; }
+.compact-login-card .input-animated { height: 44px; }
+
+/* large modal close button (red X) */
+.modal-close-large {
+  background: rgba(0,0,0,0.0);
+  color: #ef4444;
+  border: 0;
+  font-size: 22px;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+.modal-close-large:hover { transform: translateY(-2px); background: rgba(239,68,68,0.06); }
+
+@keyframes border-glow {
+  0% { transform: rotate(0deg) translateZ(0); opacity: 0.9 }
+  50% { transform: rotate(180deg) translateZ(0); opacity: 1 }
+  100% { transform: rotate(360deg) translateZ(0); opacity: 0.9 }
+}
+
+/* Hero and site-wide visual polish */
+.hero {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  position: relative;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1200px 400px at 10% 10%, rgba(16,185,129,0.06), transparent 10%), radial-gradient(900px 300px at 90% 80%, rgba(6,182,212,0.04), transparent 10%);
+  pointer-events: none;
+}
+
+.hero-title {
+  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+  line-height: 1.02;
+}
+
+.hero-sub {
+  color: var(--muted-foreground);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+}
+
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(90deg,#06b6d4 0%, #10b981 50%, #06b6d4 100%);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.45);
+  transition: transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s;
+}
+.cta-primary:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(2,6,23,0.5); }
+
+.cta-ghost {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.feature-card {
+  transition: transform 220ms, box-shadow 220ms, border-color 220ms;
+}
+.feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(2,6,23,0.5); border-color: rgba(16,185,129,0.08); }
+
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px) saturate(120%);
+}
+
+/* Testimonials */
+.testimonial { padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.015); }
+
+@media (max-width: 1024px) {
+  .hero { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  .hero-title { font-size: 2.2rem; }
+}
+
+/* Sparkle / subtle pulse animation for logos */
+@keyframes sparkle-glow {
+  0% { transform: scale(1); filter: drop-shadow(0 6px 10px rgba(34,197,94,0.12)); opacity: 1; }
+  45% { transform: scale(1.03) rotate(-0.2deg); filter: drop-shadow(0 12px 30px rgba(34,197,94,0.18)); opacity: 1; }
+  70% { transform: scale(1.01) rotate(0.1deg); filter: drop-shadow(0 8px 18px rgba(34,197,94,0.14)); opacity: 1; }
+  100% { transform: scale(1); filter: drop-shadow(0 6px 10px rgba(34,197,94,0.12)); opacity: 1; }
+}
+.sparkle-anim {
+  animation: sparkle-glow 3s ease-in-out infinite;
+  will-change: transform, filter, opacity;
+}
+
+/* Small pop animation for stat numbers */
+@keyframes stat-pop {
+  0% { transform: translateY(0) scale(1); opacity: 1 }
+  10% { transform: translateY(-6px) scale(1.08); opacity: 1 }
+  30% { transform: translateY(0) scale(1); opacity: 1 }
+  100% { transform: translateY(0) scale(1); opacity: 1 }
+}
+.stat-anim {
+  display: inline-block;
+  animation: stat-pop 3.2s cubic-bezier(.2,.9,.2,1) infinite;
+  will-change: transform, opacity;
+}
+
+/* Subtle shimmer over stat number */
+.stat-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.stat-shimmer::after {
+  content: '';
+  position: absolute;
+  left: -120%;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+  transform: skewX(-16deg);
+  animation: stat-shine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes stat-shine {
+  0% { left: -120%; opacity: 0 }
+  30% { left: -10%; opacity: 0.9 }
+  60% { left: 60%; opacity: 0 }
+  100% { left: 120%; opacity: 0 }
+}
+/* Input focus + button micro-interactions for login/signup */
+.input-animated:focus {
+  outline: none;
+  box-shadow: 0 6px 30px rgba(16,185,129,0.12), 0 0 0 4px rgba(16,185,129,0.06) inset;
+  border-color: rgba(16,185,129,0.9);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, rgba(16,185,129,1) 0%, rgba(34,197,94,1) 50%, rgba(16,185,129,1) 100%);
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms;
+}
+.btn-gradient:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(16,185,129,0.12); }
+
+@media (max-width: 768px) {
+  .login-blob--one, .login-blob--two { display: none; }
+  .login-card-entrance { padding: 1rem; }
+}
+
+/* Global responsive helpers and mobile polish */
+/* Make images and logos scale correctly */
+img, .logo-image, .avatar { max-width: 100%; height: auto; display: block; }
+
+/* Ensure tables/large blocks scroll horizontally on small screens */
+.responsive-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Dialogs and modals: full-screen on small devices for better usability */
+@media (max-width: 768px) {
+  .modal, dialog, [role="dialog"] { padding: 0; margin: 0; }
+  .modal .modal-content, dialog .modal-content, [role="dialog"] .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    padding: 1rem !important;
+  }
+
+  /* Make header compact and wrap navigation into stacked layout */
+  header .nav, header nav { display: flex; flex-direction: column; gap: 0.5rem; }
+  .container { padding-left: 12px; padding-right: 12px; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-fade-in-left {
+  animation: fade-in-left 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* Improve tap targets and spacing on small devices */
+@media (max-width: 480px) {
+  button, a.button, .cta-primary, .cta-ghost { padding: 0.7rem 0.9rem; font-size: 14px; }
+  .compact-login-wrapper { top: 8px; right: 8px; left: 8px; }
+  .hero { padding-top: 3rem; padding-bottom: 3rem; }
+}
+
+/* Ensure main container narrows on very small devices for readability */
+@media (max-width: 420px) {
+  .container { max-width: 420px; padding-left: 10px; padding-right: 10px; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); }
+}

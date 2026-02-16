@@ -1,0 +1,31 @@
+/*
+  Custom styles to decrease the size of all indices in the ticker for mobile view only
+*/
+
+@media (max-width: 600px) {
+  .indices-ticker-mobile {
+    /* Reduce padding, font size, logo size, etc. */
+    gap: 0.25rem !important;
+  }
+  .indices-ticker-mobile .h-6.w-6 {
+    height: 1.1rem !important;
+    width: 1.1rem !important;
+  }
+  .indices-ticker-mobile .font-bold {
+    font-size: 0.55rem !important;
+  }
+  .indices-ticker-mobile .text-xs {
+    font-size: 0.7rem !important;
+  }
+  .indices-ticker-mobile .ticker-change {
+    font-size: 0.6rem !important;
+  }
+  .indices-ticker-mobile .px-2 {
+    padding-left: 0.3rem !important;
+    padding-right: 0.3rem !important;
+  }
+  .indices-ticker-mobile .py-1 {
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+}

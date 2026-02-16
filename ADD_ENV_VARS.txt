@@ -1,0 +1,62 @@
+🔧 ADD THESE ENVIRONMENT VARIABLES TO VERCEL
+
+Go to: https://vercel.com/dashboard
+1. Click on your project "v0-hritikstockmarketappmain-r5"
+2. Go to Settings → Environment Variables
+3. Add each variable below:
+
+=========================================
+PRODUCTION ENVIRONMENT VARIABLES
+=========================================
+
+✅ DATABASE_URL (Mark as SECRET)
+postgresql://neondb_owner:npg_UBVz2pF8rnbt@ep-restless-bush-ah3czsaz-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+✅ RAZORPAY_KEY_ID (Mark as SECRET)
+rzp_test_SC3Un74NcXcTEm
+
+✅ RAZORPAY_KEY_SECRET (Mark as SECRET)
+8jTM6Go5nyuFVpgLb60pIhDR
+
+✅ RAZORPAY_TEST_LINK
+https://rzp.io/rzp/9NJNueG
+
+✅ RAZORPAY_WEBHOOK_SECRET (Mark as SECRET - leave EMPTY)
+(leave blank)
+
+✅ GMAIL_USER (Mark as SECRET)
+hritikparmar800@gmail.com
+
+✅ GMAIL_APP_PASSWORD (Mark as SECRET)
+zvpuszgvhsbcnnfs
+
+✅ GMAIL_FROM_NAME
+Hritik Stocks
+
+✅ ALLOW_ANY_OTP
+false
+
+✅ MASTER_OTP (Mark as SECRET)
+123456
+
+✅ NEXT_PUBLIC_APP_ORIGIN
+https://v0-hritikstockmarketappmain-r5.vercel.app
+
+✅ NEXT_PUBLIC_RAZORPAY_ME_LINK
+https://razorpay.me/@hritiksunilparmar1203
+
+✅ NEXT_PUBLIC_RAZORPAY_TEST_LINK
+https://rzp.io/rzp/9NJNueG
+
+✅ NEXT_PUBLIC_SUPABASE_ANON_KEY
+sb_publishable_fRQ8KSv00CsiluJW02rVmw_velDR-Sh
+
+✅ NEXT_PUBLIC_SUPABASE_URL
+https://ukeltuwxqbjjlzugcxpo.supabase.co
+
+=========================================
+
+AFTER ADDING ALL VARIABLES:
+1. Click "Redeploy" or run: pnpm vercel deploy --prod
+2. Wait 2-3 minutes for deployment
+3. Test at: https://v0-hritikstockmarketappmain-r5.vercel.app

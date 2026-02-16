@@ -1,0 +1,12 @@
+{
+  "env": {
+    "NEXT_PUBLIC_APP_ORIGIN": "https://v0-hritikstockmarketappmain-r5.vercel.app",
+    "CRON_SECRET": "your-secure-cron-secret-key-here"
+  },
+  "crons": [
+    {
+      "path": "/api/cron/52-week-refresh",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}
