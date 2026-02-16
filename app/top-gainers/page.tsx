@@ -558,6 +558,45 @@ export default function TopGainersPage() {
               </div>
             </div>
 
+            {/* Premium Services - styled to match Top Gainers box */}
+            <div className="mt-6">
+              <div className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/40 rounded-2xl p-6 md:p-8 mb-4 animate-bounce-slow shadow-xl">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2">Premium Services</h2>
+                    <p className="text-sm md:text-base text-muted-foreground max-w-2xl">Unlock curated premium features: AI Predictions, Priority Signals, Advanced Analytics, and exclusive Top Gainers access.</p>
+
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Lifetime Predictions</div>
+                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Priority Signals</div>
+                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Advanced Analytics</div>
+                    </div>
+                  </div>
+
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/top-gainers/create-payment', { method: 'POST', credentials: 'include' })
+                          const data = await res.json()
+                          if (data.paymentLink) {
+                            window.open(data.paymentLink, '_blank', 'width=500,height=700')
+                          } else {
+                            alert(data.error || 'Unable to start payment')
+                          }
+                        } catch (e) {
+                          alert('Payment start failed')
+                        }
+                      }}
+                      className="px-6 py-3 rounded-md font-extrabold text-white bg-gradient-to-r from-green-500 to-cyan-400 hover:from-green-600 hover:to-cyan-500 shadow-lg"
+                    >
+                      Unlock Premium — ₹200
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 justify-center animate-fade-in">
               <button

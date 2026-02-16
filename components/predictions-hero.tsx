@@ -11,7 +11,8 @@ const handlePredictionClick = async (
   markPredictionsAsPaid?: () => void,
   setUserFromData?: (user: any) => void,
   currentUser?: any,
-  setPaymentWindow?: (w: Window | null) => void
+  setPaymentWindow?: (w: Window | null) => void,
+  setPaymentActive?: (v: boolean) => void
 ) => {
   // Directly initiate payment without showing modal first
   try {
@@ -86,6 +87,7 @@ const handlePredictionClick = async (
           }
 
           const rzp = new (window as any).Razorpay(options)
+           if (setPaymentActive) setPaymentActive(true)
           rzp.open()
           // Show the local close icon so users can explicitly cancel if needed
           if (setPaymentWindow) setPaymentWindow({} as unknown as Window)
@@ -110,9 +112,11 @@ const handlePredictionClick = async (
       if (setPaymentWindow) {
         if (paymentWindow) {
           setPaymentWindow(paymentWindow);
+           if (setPaymentActive) setPaymentActive(true)
         } else {
           try {
             setPaymentWindow({} as unknown as Window);
+             if (setPaymentActive) setPaymentActive(true)
           } catch (e) {
             setPaymentWindow(null);
           }
@@ -123,6 +127,7 @@ const handlePredictionClick = async (
         if (paymentWindow && paymentWindow.closed) {
           clearInterval(checkPayment);
           if (setPaymentWindow) setPaymentWindow(null);
+           if (setPaymentActive) setPaymentActive(false)
           // Try server-side verify by orderId first so webhook or DB is authoritative
           try {
             let verified = false
@@ -181,6 +186,7 @@ export default function PredictionsHero() {
   const [showConfirm, setShowConfirm] = useState(false)
   const paymentWindowRef = useRef<Window | null>(null)
   const [popupOpen, setPopupOpen] = useState(false)
+  const [paymentActive, setPaymentActive] = useState(false)
   const setPaymentWindow = (w: Window | null) => {
     paymentWindowRef.current = w
     try {
@@ -190,6 +196,49 @@ export default function PredictionsHero() {
     }
   }
   const { markPredictionsAsPaid, setUserFromData, user } = useAuth()
+
+  // Ensure a high-z-index close button is present on the document body
+  React.useEffect(() => {
+    const id = 'sr-payment-close-portal'
+    let btn = document.getElementById(id) as HTMLButtonElement | null
+
+    if (popupOpen || paymentActive) {
+      if (!btn) {
+        btn = document.createElement('button')
+        btn.id = id
+        btn.setAttribute('aria-label', 'Close payment')
+        btn.title = 'Close payment'
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        Object.assign(btn.style, {
+          position: 'fixed',
+          top: 'env(safe-area-inset-top, 12px)',
+          right: '12px',
+          zIndex: '2147483647',
+          background: 'white',
+          borderRadius: '9999px',
+          boxShadow: '0 6px 18px rgba(0,0,0,0.16)',
+          border: '1px solid rgba(0,0,0,0.08)',
+          padding: '10px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        })
+        btn.onclick = () => {
+          try {
+            if (paymentWindowRef.current && !paymentWindowRef.current.closed) paymentWindowRef.current.close()
+          } catch (e) {}
+          setPaymentWindow(null)
+          setPaymentActive(false)
+        }
+        document.body.appendChild(btn)
+      }
+    } else {
+      if (btn) btn.remove()
+    }
+
+    return () => { const n = document.getElementById(id); if (n) n.remove() }
+  }, [popupOpen, paymentActive])
 
   // Auto-redirect after showing success message
   React.useEffect(() => {
@@ -216,7 +265,7 @@ export default function PredictionsHero() {
 
       <div className="relative z-10">
         {/* Floating close button for external payment popup */}
-        {popupOpen && (
+        {(popupOpen || paymentActive) && (
           <button
             aria-label="Close payment"
             title="Close payment"
@@ -225,6 +274,7 @@ export default function PredictionsHero() {
                 if (paymentWindowRef.current && !paymentWindowRef.current.closed) paymentWindowRef.current.close()
               } catch (e) {}
               setPaymentWindow(null)
+              setPaymentActive(false)
             }}
             className="fixed z-50 bg-white rounded-full shadow-lg border border-border p-3 md:p-2
               right-4 top-4 md:left-1/2 md:transform md:-translate-x-1/2 md:top-4"
@@ -263,10 +313,11 @@ export default function PredictionsHero() {
               <div className="flex gap-3">
                 <button
                   className="flex-1 bg-primary text-white px-4 py-2 rounded-md font-bold"
-                  onClick={() => {
+                    onClick={() => {
                     setShowConfirm(false)
                     // start payment flow
-                    handlePredictionClick(setShowModal, markPredictionsAsPaid, setUserFromData, user, setPaymentWindow)
+                    setPaymentActive(true)
+                    handlePredictionClick(setShowModal, markPredictionsAsPaid, setUserFromData, user, setPaymentWindow, setPaymentActive)
                   }}
                 >
                   Proceed to Pay

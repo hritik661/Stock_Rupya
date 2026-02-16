@@ -5,7 +5,7 @@ import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent } from "@/components/ui/card"
-import { Target, Zap, Users, Award, ArrowRight, CheckCircle2, Globe, Lock, BarChart3, ShoppingCart, Smartphone, Sparkles, Brain, TrendingUp, BarChart2 } from "lucide-react"
+import { Target, Zap, Users, Award, ArrowRight, CheckCircle2, Globe, Lock, BarChart3, ShoppingCart, Smartphone, Sparkles, Brain, TrendingUp, BarChart2, CreditCard } from "lucide-react"
 import ChatSupport from "@/components/chat-support"
 import { CTASection } from "@/components/cta-section"
 import { SupportSection } from "@/components/support-section"
@@ -155,6 +155,7 @@ export default function AboutPage() {
                 <Link href="#features">Explore Features</Link>
               </Button>
             </div>
+           
           </div>
         </section>
 
@@ -297,7 +298,18 @@ export default function AboutPage() {
                 </Link>
               </CardContent>
             </Card>
-
+            <div className="mt-6">
+              <div className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/40 rounded-2xl p-6 md:p-8 mb-4 animate-bounce-slow shadow-xl max-w-4xl mx-auto">
+                <div className="flex flex-col gap-3">
+                  <h2 className="flex items-center gap-3 text-2xl md:text-3xl lg:text-4xl font-extrabold">
+                    <CreditCard className="h-6 w-6 text-primary" />
+                    How Payments Work
+                  </h2>
+                  <p className="text-sm md:text-base text-muted-foreground">After completing a payment you'll receive a Payment ID from Razorpay. Copy the Payment ID and use the <strong>Verify Payment</strong> option in your account (or enter it when prompted) to confirm the transaction.</p>
+                  <p className="text-sm md:text-base text-muted-foreground">Once your payment is verified the system will unlock Premium Predictions and the Top Gainer Stocks view in your dashboard and on the Predictions page.</p>
+                </div>
+              </div>
+            </div>
             {/* Advanced Analytics Service */}
             <Card className="premium-card border-primary/40 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 backdrop-blur hover:border-primary/60 transition-all shadow-2xl overflow-hidden">
               <CardContent className="p-6 md:p-8 relative">
