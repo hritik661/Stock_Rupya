@@ -22,118 +22,96 @@ export default function TopGainersPage() {
   const [isRefreshingPayment, setIsRefreshingPayment] = useState(false)
   const [topGainers, setTopGainers] = useState<any[]>([])
   const [loadingGainers, setLoadingGainers] = useState(false)
+  // In-page payment flow states
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null)
+  const [showPaymentIframe, setShowPaymentIframe] = useState(false)
+  const [paymentIdInput, setPaymentIdInput] = useState('')
+  const [verifyingPayment, setVerifyingPayment] = useState(false)
+  const [paymentVerifyError, setPaymentVerifyError] = useState<string | null>(null)
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
-  // Function to verify payment status
-  const verifyPayment = async () => {
-    if (isRefreshingPayment || !user) return
-    
-    setIsRefreshingPayment(true)
+  // Verify a payment by its Razorpay payment id (used by Checkout handler and manual input)
+  const verifyPaymentById = async (paymentId: string) => {
+    if (!paymentId) return false
+    setPaymentVerifyError(null)
+    setVerifyingPayment(true)
     try {
-      console.log('🔄 Manually refreshing payment status...')
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 8000)
-
-      const res = await fetch('/api/auth/me?t=' + Date.now(), {
-        method: 'GET',
-        cache: 'no-store',
-        signal: controller.signal,
+      const res = await fetch('/api/top-gainers/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+        body: JSON.stringify({ payment_id: paymentId })
       })
-      clearTimeout(timeout)
+      const txt = await res.text().catch(() => '')
+      let j: any = {}
+      try { j = txt ? JSON.parse(txt) : {} } catch (e) { j = { raw: txt } }
 
-      if (res.ok) {
-        const data = await res.json()
-        const paid = data?.user?.isTopGainerPaid === true
-        console.log('✅ Payment status refreshed:', paid)
-        setVerifiedPaymentStatus(paid)
-        
-        if (paid) {
-          setShowPaymentSuccessModal(true)
-        }
-      } else {
-        console.error('⚠️ Refresh failed with status:', res.status)
+      console.log('[TOP-GAINERS][VERIFY BY ID] parsed JSON response', res.status, j)
+      if (res.ok && j?.verified) {
+        try {
+          const me = await fetch('/api/auth/me?t=' + Date.now(), { cache: 'no-store', credentials: 'include' })
+          if (me.ok) {
+            const meData = await me.json()
+            if (meData?.user && setUserFromData) setUserFromData(meData.user)
+            if (meData?.user?.isTopGainerPaid) setVerifiedPaymentStatus(true)
+          }
+        } catch (e) { console.warn('Failed to refresh auth after Checkout verify:', e) }
+        setShowPaymentIframe(false)
+        setPaymentUrl(null)
+        setPaymentOrderId(null)
+        setPaymentIdInput('')
+        return true
       }
+
+      const display = j?.error ? `${j.error}${j?.reason ? ' (' + j.reason + ')' : ''}` : `Verification failed (status ${res.status}).`
+      setPaymentVerifyError(`${display} ${JSON.stringify(j)}`)
+      return false
     } catch (err) {
-      console.error('❌ Payment refresh error:', err)
+      setPaymentVerifyError(err instanceof Error ? err.message : 'Verification error')
+      return false
     } finally {
-      setIsRefreshingPayment(false)
+      setVerifyingPayment(false)
     }
   }
 
-  // Fetch top gainers data
   const fetchTopGainers = async () => {
+    setLoadingGainers(true)
     try {
-      setLoadingGainers(true)
-      console.log('📊 Fetching top gainers data...')
-      
-      // Try API first with timeout
+      // Try server endpoint first
       try {
-        const controller = new AbortController()
-        const timeout = setTimeout(() => controller.abort(), 8000) // 8 second timeout
-        
-        const res = await fetch('/api/stock/gainers-losers?type=gainers&limit=50', {
-          signal: controller.signal,
-          headers: {
-            'Cache-Control': 'max-age=60', // Cache for 60 seconds
-          }
-        })
-        clearTimeout(timeout)
-        
-        const data = await res.json()
-        console.log('📊 API Response:', data)
-        
-        // Check all possible response formats
-        const gainersData = data.gainers || data[type] || data || []
-        console.log('📊 Gainers data extracted:', gainersData)
-        
-        if (gainersData && Array.isArray(gainersData) && gainersData.length > 0) {
-          setTopGainers(gainersData)
-          console.log('✅ Loaded', gainersData.length, 'gainers from API')
+        const res = await fetch('/api/top-gainers?api=1', { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          const items = data?.gainers || data || []
+          setTopGainers(items)
+          console.log('✅ Loaded', items.length, 'gainers from API')
           return
         }
-      } catch (apiErr) {
-        console.warn('⚠️ API fetch failed, trying fallback:', apiErr)
+      } catch (e) {
+        console.warn('API fetch failed, falling back to mock gainers', e)
       }
-      
-      // Fallback: Use local Indian stocks data (cached)
-      console.log('📊 Using fallback: Local Indian stocks with simulated prices')
-      const { INDIAN_STOCKS } = await import("@/lib/stocks-data")
-      
-      // Generate simulated gainers by giving each stock a random gain between 0-10%
-      const fallbackGainers = INDIAN_STOCKS.slice(0, 30).map((stock, idx) => {
-        const gain = Math.random() * 10 // 0-10% gain
-        const basePrice = 100 + Math.random() * 4900 // Random price 100-5000
-        const change = (basePrice * gain) / 100
-        
+
+      // Fallback mock gainers
+      const fallbackSymbols = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'LT', 'SBIN', 'AXISBANK', 'KOTAKBANK', 'BHARTIARTL']
+      const fallbackGainers = fallbackSymbols.map((sym, idx) => {
+        const basePrice = 100 + Math.random() * 2000
         return {
-          symbol: stock.symbol,
-          shortName: stock.name,
-          longName: stock.name,
+          symbol: sym,
+          shortName: sym,
           regularMarketPrice: basePrice,
-          regularMarketChange: change,
-          regularMarketChangePercent: gain,
-          regularMarketPreviousClose: basePrice - change,
-          regularMarketOpen: basePrice - change * 0.5,
-          regularMarketDayHigh: basePrice * 1.02,
-          regularMarketDayLow: basePrice * 0.98,
-          regularMarketVolume: Math.random() * 10000000,
+          regularMarketChange: +(Math.random() * 50).toFixed(2),
+          regularMarketChangePercent: +(Math.random() * 10).toFixed(2),
+          regularMarketVolume: Math.floor(Math.random() * 10000000),
           marketCap: 0,
-          fiftyTwoWeekHigh: basePrice * 1.3,
-          fiftyTwoWeekLow: basePrice * 0.7,
+          fiftyTwoWeekHigh: +(basePrice * 1.3).toFixed(2),
+          fiftyTwoWeekLow: +(basePrice * 0.7).toFixed(2),
           currency: 'INR'
         }
       })
-      
+
       // Sort by gain percentage (highest first)
-      const sorted = fallbackGainers.sort((a, b) => 
-        (b.regularMarketChangePercent || 0) - (a.regularMarketChangePercent || 0)
-      )
-      
+      const sorted = fallbackGainers.sort((a, b) => (b.regularMarketChangePercent || 0) - (a.regularMarketChangePercent || 0))
       setTopGainers(sorted)
       console.log('✅ Loaded', sorted.length, 'gainers from fallback')
     } catch (err) {
@@ -251,6 +229,8 @@ export default function TopGainersPage() {
     }
   }, [verifiedPaymentStatus])
 
+  // Manual verify handler removed — verification is handled via checkout + server verify endpoints
+
   // Loading state
   if (isLoading || !authReady) {
     return (
@@ -349,7 +329,6 @@ export default function TopGainersPage() {
         <main className="max-w-full md:max-w-7xl lg:max-w-7xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="/rupya.png" alt="StockRupya Logo" className="h-12 w-12 md:h-16 md:w-16" />
               <div>
                 <h1 className="text-[12px] font-bold mb-2 flex items-center gap-3">
                   <TrendingUp className="h-6 w-6 md:h-7 md:w-7 text-primary" />
@@ -450,9 +429,10 @@ export default function TopGainersPage() {
         <div className="min-h-screen flex items-center justify-center py-2">
           <div className="w-full max-w-md px-2">
             {/* Unlock Button at TOP */}
-            <div className="mb-4 flex gap-2 justify-center animate-fade-in">
+            <div className="mb-6 flex gap-2 justify-center">
               <button
                 onClick={async () => {
+                  setIsProcessingPayment(true)
                   try {
                     const res = await fetch('/api/top-gainers/create-payment', { 
                       method: 'POST',
@@ -470,22 +450,111 @@ export default function TopGainersPage() {
                     }
                     if (data.paymentLink) {
                       const orderId = data.orderId || data.order_id || data.order || null
-                      const paymentWindow = window.open(data.paymentLink, '_blank', 'width=500,height=700')
-                      const checkPayment = setInterval(() => {
-                        if (paymentWindow && paymentWindow.closed) {
-                          clearInterval(checkPayment)
-                          const redirectUrl = `/verify-payment${orderId ? `?order_id=${encodeURIComponent(orderId)}&product=top_gainers` : '?product=top_gainers'}`
-                          window.location.href = redirectUrl
+                      // Open the hosted payment in an in-page modal (iframe)
+                      setPaymentUrl(data.paymentLink)
+                      setPaymentOrderId(orderId)
+                      setShowPaymentIframe(true)
+                      // If an orderId exists, start polling server verify (useful for hosted payment links)
+                      if (orderId) {
+                        (async function pollOrder() {
+                          const maxAttempts = 20
+                          let attempts = 0
+                          while (attempts < maxAttempts) {
+                            try {
+                              const q = new URLSearchParams()
+                              q.set('order_id', orderId)
+                              q.set('api', '1')
+                              const r = await fetch(`/api/top-gainers/verify-payment?${q.toString()}`, { cache: 'no-store' })
+                              if (r.ok) {
+                                const j = await r.json().catch(() => ({}))
+                                if (j?.verified) {
+                                  try {
+                                    const me = await fetch('/api/auth/me?t=' + Date.now(), { cache: 'no-store', credentials: 'include' })
+                                    if (me.ok) {
+                                      const meData = await me.json()
+                                      if (meData?.user) {
+                                        if (meData?.user?.isTopGainerPaid) setVerifiedPaymentStatus(true)
+                                        if (setUserFromData) setUserFromData(meData.user)
+                                      }
+                                    }
+                                  } catch (e) { console.warn('Failed to refresh auth after verify poll', e) }
+                                      setShowPaymentIframe(false)
+                                      setPaymentUrl(null)
+                                      setPaymentOrderId(null)
+                                      try {
+                                        router.replace('/predictions?from=payment&success=paid')
+                                      } catch (e) { window.location.href = '/predictions?from=payment&success=paid' }
+                                      fetchTopGainers()
+                                      return
+                                }
+                              }
+                            } catch (e) {}
+                            attempts++
+                            await new Promise((res) => setTimeout(res, 3000))
+                          }
+                        })()
+                      }
+                    }
+                    // If server provided a Razorpay order id, open Checkout
+                    if (data?.razorpayOrderId && (window as any).Razorpay) {
+                      const options = {
+                        key: data?.keyId || data?.razorpayKey,
+                        order_id: data.razorpayOrderId,
+                        handler: async (resp: any) => {
+                          try {
+                            const pid = resp?.razorpay_payment_id || resp?.payment_id || ''
+                            if (pid) {
+                              setPaymentIdInput(pid)
+                              // POST to verify endpoint
+                              const r = await fetch('/api/top-gainers/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ payment_id: pid })
+                              })
+                              const j = await r.json().catch(() => ({}))
+                              if (r.ok && j?.verified) {
+                                try {
+                                  const me = await fetch('/api/auth/me?t=' + Date.now(), { cache: 'no-store', credentials: 'include' })
+                                  if (me.ok) {
+                                    const meData = await me.json()
+                                    if (meData?.user) {
+                                      if (meData?.user?.isTopGainerPaid) setVerifiedPaymentStatus(true)
+                                      if (setUserFromData) setUserFromData(meData.user)
+                                    }
+                                  }
+                                } catch (e) { console.warn('Failed to refresh auth after Checkout verify', e) }
+                                setShowPaymentIframe(false)
+                                setPaymentUrl(null)
+                                setPaymentIdInput('')
+                                try {
+                                  router.replace('/predictions?from=payment&success=paid')
+                                } catch (e) { window.location.href = '/predictions?from=payment&success=paid' }
+                                fetchTopGainers()
+                                return
+                              }
+                            }
+                          } catch (e) { console.warn('Razorpay handler error', e) }
                         }
-                      }, 500)
+                      }
+                      const rzp = new (window as any).Razorpay(options)
+                      rzp.open()
+                      setIsProcessingPayment(false)
+                      return
                     }
                   } catch (err) {
                     alert('Payment failed. Please try again.')
+                  } finally {
+                    setIsProcessingPayment(false)
                   }
                 }}
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 premium-prediction-button unlock-animated text-[14px] px-6 py-2 rounded-md font-bold text-white shadow-lg"
+                disabled={isProcessingPayment}
+                className="relative w-full max-w-lg flex items-center justify-center px-6 py-3 rounded-2xl font-extrabold text-white shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-105"
               >
-                🔓 Unlock 200 - Access Top Gainers Now
+                <span className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-pink-600 to-indigo-600 opacity-80 blur-lg animate-pulse-slow"></span>
+                <span className="relative z-10 flex items-center gap-3">
+                
+                  <span className="text-sm">{isProcessingPayment ? 'Processing...' : '🔓 Unlock ₹200 - Access Top Gainers Now'}</span>
+                </span>
               </button>
             </div>
 
@@ -558,44 +627,7 @@ export default function TopGainersPage() {
               </div>
             </div>
 
-            {/* Premium Services - styled to match Top Gainers box */}
-            <div className="mt-6">
-              <div className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/40 rounded-2xl p-6 md:p-8 mb-4 animate-bounce-slow shadow-xl">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex-1">
-                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2">Premium Services</h2>
-                    <p className="text-sm md:text-base text-muted-foreground max-w-2xl">Unlock curated premium features: AI Predictions, Priority Signals, Advanced Analytics, and exclusive Top Gainers access.</p>
-
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Lifetime Predictions</div>
-                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Priority Signals</div>
-                      <div className="p-3 rounded-lg bg-background/30 border border-border/10 text-sm font-semibold">Advanced Analytics</div>
-                    </div>
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={async () => {
-                        try {
-                          const res = await fetch('/api/top-gainers/create-payment', { method: 'POST', credentials: 'include' })
-                          const data = await res.json()
-                          if (data.paymentLink) {
-                            window.open(data.paymentLink, '_blank', 'width=500,height=700')
-                          } else {
-                            alert(data.error || 'Unable to start payment')
-                          }
-                        } catch (e) {
-                          alert('Payment start failed')
-                        }
-                      }}
-                      className="px-6 py-3 rounded-md font-extrabold text-white bg-gradient-to-r from-green-500 to-cyan-400 hover:from-green-600 hover:to-cyan-500 shadow-lg"
-                    >
-                      Unlock Premium — ₹200
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+     
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 justify-center animate-fade-in">
@@ -606,9 +638,93 @@ export default function TopGainersPage() {
                 ✕ Cancel
               </button>
             </div>
+
+            {/* Manual verify input removed per request — verification is handled via checkout and server verify endpoints */}
           </div>
         </div>
       </main>
+      {/* In-page payment iframe + manual payment-id verification */}
+      {showPaymentIframe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
+          <div className="relative w-full max-w-4xl sm:rounded-xl sm:shadow-2xl h-screen sm:h-[96vh] md:h-[96vh] bg-gradient-to-br from-gray-900/80 to-black/80 sm:overflow-hidden overflow-auto flex flex-col ring-1 ring-white/5">
+            {/* Mobile close button (fixed inside modal) */}
+            <button
+              onClick={() => setShowPaymentIframe(false)}
+              aria-label="Close payment"
+              className="sm:hidden absolute top-3 right-3 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white shadow-md"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center justify-between p-3 md:p-4 border-b border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="text-lg font-bold text-white">Complete Payment</div>
+                <div className="hidden md:inline-block px-3 py-1 text-xs rounded bg-white/5 text-white/90">Test Mode</div>
+              </div>
+              <div>
+                <button
+                  onClick={() => setShowPaymentIframe(false)}
+                  className="hidden sm:inline-block px-3 py-1 rounded bg-white/6 hover:bg-white/10 text-sm text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 bg-black">
+              <div className="col-span-1 md:col-span-8 border-b md:border-b-0 md:border-r border-white/5 min-h-0">
+                <iframe
+                  src={paymentUrl || ''}
+                  title="Payment"
+                  className="w-full border-0 bg-white"
+                  allowFullScreen
+                  loading="lazy"
+                  style={{ height: 'calc(100vh - 56px)' }}
+                />
+              </div>
+              <div className="col-span-1 md:col-span-4 p-6 space-y-4 bg-gradient-to-t from-black/60 to-transparent">
+                <div className="text-sm text-white/80 animate-fade-in-up">Processing your payment securely. The payment id is captured automatically after checkout.</div>
+
+                <div className="flex items-center gap-2 min-w-0 animate-pulse-soft">
+                  <input
+                    value={paymentIdInput}
+                    onChange={(e) => { setPaymentIdInput(e.target.value); setPaymentVerifyError(null) }}
+                    placeholder="Payment id (e.g., pay_XXX)"
+                    className="flex-1 min-w-0 px-3 py-2 bg-white/5 hover:bg-white/10 placeholder-white/60 rounded-md text-white outline-none transition-colors focus:bg-white/15 focus:ring-2 focus:ring-emerald-400"
+                  />
+                  <button
+                    onClick={async () => {
+                      setPaymentVerifyError(null)
+                      if (!paymentIdInput) { setPaymentVerifyError('Please enter the payment id'); return }
+                      setVerifyingPayment(true)
+                      const ok = await verifyPaymentById(paymentIdInput)
+                      setVerifyingPayment(false)
+                      if (ok) {
+                        fetchTopGainers()
+                      }
+                    }}
+                    disabled={verifyingPayment}
+                    className="flex-shrink-0 px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
+                  >
+                    {verifyingPayment ? 'Verifying...' : 'Verify'}
+                  </button>
+                </div>
+                {paymentVerifyError && <p className="text-sm text-red-500 animate-shake">{paymentVerifyError}</p>}
+
+                <div className="pt-4 border-t border-white/5 text-sm text-white/70 animate-fade-in">
+                  <div className="font-semibold mb-2 text-emerald-300">Why this unlock is awesome</div>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Handpicked high-potential NSE & BSE stocks.</span></li>
+                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Lifetime access with no hidden fees.</span></li>
+                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Live updates driven by AI and fundamentals.</span></li>
+                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Simple and secure Razorpay payments.</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

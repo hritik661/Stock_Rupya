@@ -174,7 +174,7 @@ export async function POST(req: Request) {
           VALUES (${testLinkId}, ${user.id}, ${amountPaise/100}, 'INR', 'created', 'razorpay', 'top_gainers', NOW())
           ON CONFLICT (order_id) DO NOTHING
         `
-        console.log('✅ [CREATE-PAYMENT] Payment order created:', testLinkId, 'for user:', user.id)
+        console.log('✅ [CREATE-PAYMENT] Test payment order created:', testLinkId, 'for user:', user.id)
       } catch (err) {
         console.warn('[CREATE-PAYMENT] DB error (continuing anyway):', err)
       }

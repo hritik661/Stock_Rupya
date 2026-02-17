@@ -149,16 +149,16 @@ export async function POST(req: Request) {
         // Insert payment order with CREATED status (NOT paid yet)
         await sql`
           INSERT INTO payment_orders (order_id, user_id, amount, currency, status, payment_gateway, product_type, created_at)
-          VALUES (${testLinkId}, ${user.id}, 1.00, 'INR', 'created', 'razorpay', 'predictions', NOW())
+          VALUES (${testLinkId}, ${user.id}, ${amountPaise/100}, 'INR', 'created', 'razorpay', 'predictions', NOW())
           ON CONFLICT (order_id) DO NOTHING
         `
-        console.log('✅ [CREATE-PAYMENT] Payment order created:', testLinkId, 'for user:', user.id)
+        console.log('✅ [CREATE-PAYMENT] Test payment order created:', testLinkId, 'for user:', user.id)
       } catch (err) {
         console.warn('[CREATE-PAYMENT] DB error:', err)
       }
     }
     
-    console.log('✅ [CREATE-PAYMENT] Returning payment link for user:', user.id, 'Order ID:', testLinkId)
+    console.log('✅ [CREATE-PAYMENT] Returning test payment link for user:', user.id, 'Order ID:', testLinkId)
     return NextResponse.json({ orderId: testLinkId, paymentLink: testLink })
 
   } catch (error) {

@@ -727,6 +727,33 @@ export const INDIAN_STOCKS: Stock[] = [
   { symbol: "AMBUJACEMENT.NS", name: "Ambuja Cements Limited", sector: "Cement", exchange: "NSE" },
   { symbol: "INDIGO.NS", name: "InterGlobe Aviation", sector: "Airline", exchange: "NSE" },
   { symbol: "SPICEJET.NS", name: "SpiceJet Limited", sector: "Airline", exchange: "NSE" },
+
+  // High-Gain Mid-cap & Small-cap Stocks
+  { symbol: "UNIECOM.NS", name: "Unicommerce eSolutions Ltd", sector: "IT", exchange: "NSE" },
+  { symbol: "KOTHARIPRO.BO", name: "Kothari Products Ltd", sector: "Consumer", exchange: "BSE" },
+  { symbol: "EASEMYTRIP.NS", name: "Easy Trip Planners Ltd", sector: "Consumer", exchange: "NSE" },
+  { symbol: "NEWGEN.NS", name: "Newgen Software Technologies Ltd", sector: "IT", exchange: "NSE" },
+  { symbol: "GANDHITUBE.NS", name: "Gandhi Special Tubes Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "INDOFARM.NS", name: "Indo Farm Equipment Ltd", sector: "Automobile", exchange: "NSE" },
+  { symbol: "RACLGEAR.NS", name: "RACL Geartech Ltd", sector: "Automobile", exchange: "NSE" },
+  { symbol: "SHRADHA.BO", name: "Shradha Infraprojects Ltd", sector: "Infrastructure", exchange: "BSE" },
+  { symbol: "PRAJIND.NS", name: "Praj Industries Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "GENESYS.NS", name: "Genesys International Corp Ltd", sector: "IT", exchange: "NSE" },
+  { symbol: "GTPL.NS", name: "GTPL Hathway Ltd", sector: "Telecom", exchange: "NSE" },
+  { symbol: "BIRLACABLE.NS", name: "Birla Cable Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "JPOLYINVST.NS", name: "Jindal Poly Investment & Finance Ltd", sector: "Finance", exchange: "NSE" },
+  { symbol: "VSTTILLERS.NS", name: "VST Tillers Tractors Ltd", sector: "Automobile", exchange: "NSE" },
+  { symbol: "MPSLTD.NS", name: "MPS Ltd", sector: "Consumer", exchange: "NSE" },
+  { symbol: "ONESOURCE.NS", name: "OneSource Specialty Pharma Ltd", sector: "Pharma", exchange: "NSE" },
+  { symbol: "MANGLMCEM.NS", name: "Mangalam Cement Ltd", sector: "Cement", exchange: "NSE" },
+  { symbol: "RATEGAIN.NS", name: "RateGain Travel Technologies Ltd", sector: "IT", exchange: "NSE" },
+  { symbol: "VERTOZ.NS", name: "Vertoz Ltd", sector: "IT", exchange: "NSE" },
+  { symbol: "JINDALPOLY.NS", name: "Jindal Poly Films Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "SMSPHARMA.NS", name: "SMS Pharmaceuticals Ltd", sector: "Pharma", exchange: "NSE" },
+  { symbol: "SWSOLAR.NS", name: "Sterling & Wilson Renewable Energy Ltd", sector: "Power", exchange: "NSE" },
+  { symbol: "EXICOM.NS", name: "Exicom Tele-Systems Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "AEROFLEX.NS", name: "Aeroflex Industries Ltd", sector: "Industrials", exchange: "NSE" },
+  { symbol: "DYNAMATECH.NS", name: "Dynamatic Technologies Ltd", sector: "Industrials", exchange: "NSE" },
 ]
 
 export const INDICES = [

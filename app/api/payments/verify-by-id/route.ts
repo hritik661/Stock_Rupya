@@ -19,22 +19,33 @@ export async function POST(req: Request) {
     // If Razorpay keys exist, verify payment directly with Razorpay
     let razorpayVerified = false
     let razorpayData: any = null
-    if (keyId && keySecret) {
+      if (keyId && keySecret) {
       try {
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64')
         const resp = await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`, {
           method: 'GET',
           headers: { Authorization: `Basic ${auth}` }
         })
-        if (resp.ok) {
-          razorpayData = await resp.json()
-          const status = (razorpayData?.status || '').toLowerCase()
-          const amount = Number(razorpayData?.amount) || 0
-          // status should be "captured" for successful payment
-          if (status === 'captured' && amount >= requiredAmountPaise) {
-            razorpayVerified = true
+          const respText = await resp.text().catch(() => '')
+          try {
+            razorpayData = respText ? JSON.parse(respText) : null
+          } catch (e) {
+            razorpayData = { raw: respText }
           }
-        }
+          if (resp.ok && razorpayData) {
+            const status = (razorpayData?.status || '').toLowerCase()
+            const amount = Number(razorpayData?.amount) || 0
+            const allowedStatuses = ['captured']
+            if (allowedStatuses.includes(status) && amount >= requiredAmountPaise) {
+              razorpayVerified = true
+            } else {
+              console.warn('[VERIFY-BY-ID] Razorpay returned unexpected status or insufficient amount', { paymentId, status, amount, requiredAmountPaise, allowedStatuses })
+            }
+          } else {
+            console.warn('[VERIFY-BY-ID] Razorpay lookup failed', { paymentId, status: resp.status, body: razorpayData })
+            // include the raw response for diagnostics
+            razorpayData = razorpayData || { status: resp.status, body: respText }
+          }
       } catch (err) {
         console.warn('[VERIFY-BY-ID] Razorpay lookup failed:', err)
       }
@@ -95,68 +106,25 @@ export async function POST(req: Request) {
             if (product === 'top_gainers') {
               await sql`UPDATE users SET is_top_gainer_paid = true WHERE id = ${userId}`
             } else {
-              await sql`UPDATE users SET is_prediction_paid = true WHERE id = ${userId}`
-            }
-            // fetch updated user row to return to client
-            try {
-              const urows = await sql`SELECT id, email, name, is_top_gainer_paid, is_prediction_paid FROM users WHERE id = ${userId} LIMIT 1`
-              if (urows?.length) {
-                const u = urows[0]
-                return NextResponse.json({ verified: true, payment_id: paymentId, order_id: orderId || null, user: { id: u.id, email: u.email, name: u.name, isTopGainerPaid: u.is_top_gainer_paid, isPredictionPaid: u.is_prediction_paid } })
-              }
-            } catch (e) {
-              // ignore
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('[VERIFY-BY-ID] DB update error:', err)
-      }
-      return NextResponse.json({ verified: true, payment_id: paymentId, order_id: orderId || null })
-    }
+              import { NextResponse } from "next/server"
+              import verifyPaymentByIdInternal from "@/app/lib/paymentsVerify"
 
-    // If Razorpay couldn't verify but DB exists, check payment_orders status
+              export async function POST(req: Request) {
+                try {
+                  const body = await req.json().catch(() => ({}))
+                  const paymentId = (body?.payment_id || '').trim()
+                  const orderId = body?.order_id || null
+                  const product = body?.product || 'predictions'
+                  if (!paymentId) return NextResponse.json({ error: 'Missing payment_id' }, { status: 400 })
+
+                  const result = await verifyPaymentByIdInternal({ paymentId, orderId, product })
+                  if (result?.verified) return NextResponse.json(result, { status: 200 })
+                  // map internal reason to appropriate status codes
+                  const status = result?.reason === 'razorpay_mismatch' ? 402 : (result?.reason === 'no_record' ? 404 : 400)
+                  return NextResponse.json(result, { status })
+                } catch (error) {
+                  console.error('[VERIFY-BY-ID] Error:', error)
+                  return NextResponse.json({ verified: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 })
+                }
+              }
     if (useDatabase && sql) {
-      try {
-        let rows: any = []
-        if (orderId) {
-          rows = await sql`SELECT status, user_id, product_type FROM payment_orders WHERE order_id = ${orderId} LIMIT 1`
-        } else {
-          rows = await sql`SELECT status, user_id, product_type FROM payment_orders WHERE payment_id = ${paymentId} LIMIT 1`
-        }
-          if (rows?.length) {
-          const status = rows[0].status
-          const uid = rows[0].user_id
-          const productType = rows[0].product_type || product
-          if (status === 'paid') {
-            // Ensure user flag is set
-            try {
-              if (productType === 'top_gainers') {
-                await sql`UPDATE users SET is_top_gainer_paid = true WHERE id = ${uid}`
-              } else {
-                await sql`UPDATE users SET is_prediction_paid = true WHERE id = ${uid}`
-              }
-            } catch (e) {}
-            // fetch updated user to return
-            try {
-              const urows = await sql`SELECT id, email, name, is_top_gainer_paid, is_prediction_paid FROM users WHERE id = ${uid} LIMIT 1`
-              if (urows?.length) {
-                const u = urows[0]
-                return NextResponse.json({ verified: true, payment_id: paymentId, order_id: orderId || null, user: { id: u.id, email: u.email, name: u.name, isTopGainerPaid: u.is_top_gainer_paid, isPredictionPaid: u.is_prediction_paid } })
-              }
-            } catch (e) {}
-            return NextResponse.json({ verified: true, payment_id: paymentId, order_id: orderId || null })
-          }
-        }
-      } catch (err) {
-        console.warn('[VERIFY-BY-ID] DB lookup error:', err)
-      }
-    }
-
-    // Do NOT auto-accept in test/dev mode. Require either Razorpay confirmation or DB-recorded 'paid' status.
-    return NextResponse.json({ verified: false, error: 'Payment not verified' }, { status: 400 })
-  } catch (error) {
-    console.error('[VERIFY-BY-ID] Error:', error)
-    return NextResponse.json({ verified: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 })
-  }
-}

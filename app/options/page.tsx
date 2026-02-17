@@ -131,13 +131,27 @@ export default function OptionsPage() {
         if (savedPositions) {
           const parsed = JSON.parse(savedPositions)
           if (Array.isArray(parsed)) {
-            setPositions(parsed)
-            
+            // Normalize parsed positions to ensure numeric values and required fields
+            const normalized: Position[] = parsed.map((p: any) => ({
+              id: String(p.id || Math.random().toString(36).substring(7)),
+              type: p.type === 'PE' ? 'PE' : 'CE',
+              action: p.action === 'SELL' ? 'SELL' : 'BUY',
+              index: p.index || p.symbol || 'NIFTY',
+              strike: Number(p.strike) || Number(p.strike_price) || 0,
+              price: Number(p.price || p.entryPrice || p.entry_price) || 0,
+              quantity: Number(p.quantity) || 1,
+              lotSize: Number(p.lotSize) || 50,
+              totalValue: Number(p.totalValue) || (Number(p.price || p.entryPrice || p.entry_price) || 0) * (Number(p.quantity) || 1) * (Number(p.lotSize) || 50),
+              timestamp: Number(p.timestamp) || Number(p.created_at) || Date.now(),
+            }))
+
+            setPositions(normalized)
+
             // Initialize last trading prices for existing positions (use options-calculator storage)
-            parsed.forEach((pos: Position) => {
+            normalized.forEach((pos: Position) => {
               const key = `${pos.index}-${pos.strike}-${pos.type}`
               const existing = getLastTradingPrice(user.email, key)
-              if (typeof existing !== 'number') {
+              if (typeof existing !== 'number' || existing <= 0) {
                 try { storeLastTradingPrice(user.email, key, pos.price) } catch {}
               }
             })
@@ -522,37 +536,23 @@ export default function OptionsPage() {
                       let totalLoss = 0
 
                       positions.forEach((pos) => {
-                        // Get current price with improved fallback logic
-                        let currentPrice = pos.price
-                        
-                        // First try lastTradingPrice
-                        if (user) {
-                          const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
-                          const lastTradingPrice = getLastTradingPrice(user.email, strikeKey)
-                          if (lastTradingPrice && lastTradingPrice > 0) {
-                            currentPrice = lastTradingPrice
-                          }
+                        // Determine live price (coerce to number) and last saved price
+                        let livePrice: number | undefined = undefined
+                        const positionStrikes = strikesByIndex[pos.index] || []
+                        let strike = positionStrikes.find((s) => s.strike === pos.strike)
+                        if (!strike && pos.index === selectedIndex.symbol) {
+                          strike = strikes.find((s) => s.strike === pos.strike)
                         }
-                        
-                        // If not found, try live prices from API
-                        if (currentPrice === pos.price) {
-                          const positionStrikes = strikesByIndex[pos.index] || []
-                          let strike = positionStrikes.find((s) => s.strike === pos.strike)
-                          
-                          // If not found, check the main strikes if it's for the selected index
-                          if (!strike && pos.index === selectedIndex.symbol) {
-                            strike = strikes.find((s) => s.strike === pos.strike)
-                          }
-                          
-                          if (strike) {
-                            const apiPrice = pos.type === "CE" ? strike.cePrice : strike.pePrice
-                            if (apiPrice > 0) {
-                              currentPrice = apiPrice
-                            }
-                          }
+                        if (strike) {
+                          const apiPrice = pos.type === "CE" ? strike.cePrice : strike.pePrice
+                          const n = Number(apiPrice)
+                          if (!isNaN(n) && n > 0) livePrice = n
                         }
 
-                        // Calculate P&L using proper options calculator
+                        const key = `${pos.index}-${pos.strike}-${pos.type}`
+                        const last = user ? getLastTradingPrice(user.email, key) : undefined
+                        const currentPrice = getEffectivePrice(livePrice, last, pos.price)
+
                         const pnl = calculateOptionsPnL(pos.price, currentPrice, pos.action, pos.quantity, pos.lotSize)
 
                         totalCredit += currentPrice * pos.quantity * pos.lotSize
@@ -614,65 +614,29 @@ export default function OptionsPage() {
                   <TableBody>
                     {positions.map((pos) => {
                       try {
-                        // Check if market is open
-                        const marketStatus = isMarketOpen()
-                        
-                        // Get current price for this position with improved fallback logic:
-                        // 1. Try live prices from API (strikesByIndex or strikes) 
-                        // 2. Try last trading price from localStorage
-                        // 3. Fall back to entry price only as absolute last resort
-                        let currentPrice = pos.price // Default to entry price as fallback
-                        let foundPrice = false
-                        
-                        // First, try last trading price (localStorage) - most reliable
-                        if (!foundPrice && user) {
-                          const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
-                          const lastTradingPrice = getLastTradingPrice(user.email, strikeKey)
-                          if (lastTradingPrice && !isNaN(lastTradingPrice) && lastTradingPrice > 0) {
-                            currentPrice = lastTradingPrice
-                            foundPrice = true
-                          }
+                        // Resolve live API price (coerce to number) if available
+                        let livePrice: number | undefined = undefined
+                        const positionStrikes = strikesByIndex[pos.index] || []
+                        let strike = positionStrikes.find((s) => s.strike === pos.strike)
+                        if (!strike && pos.index === selectedIndex.symbol) {
+                          strike = strikes.find((s) => s.strike === pos.strike)
                         }
-                        
-                        // If not found in localStorage, try live prices from API state
-                        if (!foundPrice) {
-                          // Check strikesByIndex first (for non-selected indices)
-                          const positionStrikes = strikesByIndex[pos.index]
-                          if (positionStrikes && Array.isArray(positionStrikes)) {
-                            const strike = positionStrikes.find((s) => s.strike === pos.strike)
-                            if (strike && typeof strike[pos.type === "CE" ? "cePrice" : "pePrice"] === "number") {
-                              const apiPrice = pos.type === "CE" ? strike.cePrice : strike.pePrice
-                              if (apiPrice > 0) {
-                                currentPrice = apiPrice
-                                foundPrice = true
-                              }
-                            }
-                          }
-                          
-                          // If not found in strikesByIndex, check main strikes array (for selected index)
-                          if (!foundPrice && pos.index === selectedIndex.symbol) {
-                            const mainStrike = strikes.find((s) => s.strike === pos.strike)
-                            if (mainStrike && typeof mainStrike[pos.type === "CE" ? "cePrice" : "pePrice"] === "number") {
-                              const apiPrice = pos.type === "CE" ? mainStrike.cePrice : mainStrike.pePrice
-                              if (apiPrice > 0) {
-                                currentPrice = apiPrice
-                                foundPrice = true
-                              }
-                            }
-                          }
+                        if (strike) {
+                          const apiPrice = pos.type === "CE" ? strike.cePrice : strike.pePrice
+                          const n = Number(apiPrice)
+                          if (!isNaN(n) && n > 0) livePrice = n
                         }
-                        
-                        // If we found a price from API and haven't stored it yet, store it now
-                        if (foundPrice && currentPrice > 0 && currentPrice !== pos.price && user) {
-                          try {
-                            const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
-                            storeLastTradingPrice(user.email, strikeKey, currentPrice)
-                          } catch {}
+
+                        const key = `${pos.index}-${pos.strike}-${pos.type}`
+                        const last = user ? getLastTradingPrice(user.email, key) : undefined
+                        const currentPrice = getEffectivePrice(livePrice, last, pos.price)
+
+                        // If we obtained a live price different from entry, persist it for determinism
+                        if (typeof livePrice === 'number' && livePrice > 0 && livePrice !== pos.price && user) {
+                          try { storeLastTradingPrice(user.email, key, livePrice) } catch {}
                         }
 
                         // Calculate P&L using proper options calculator
-                        // P&L = (currentPrice - entryPrice) × quantity × lotSize for BUY
-                        // P&L = (entryPrice - currentPrice) × quantity × lotSize for SELL
                         const pnl = calculateOptionsPnL(pos.price, currentPrice, pos.action, pos.quantity, pos.lotSize)
                         const pnlPercent = calculateOptionsPnLPercent(pos.price, currentPrice, pos.action)
                         const pnlSign = pnl >= 0

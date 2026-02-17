@@ -74,16 +74,26 @@ export async function POST(req: Request) {
 
         console.log('🔄 [REVERT-PAYMENT] Reverted payment for user (predictions + top_gainers):', user.id)
 
-        return NextResponse.json({ 
-          success: true, 
-          message: "Payment access has been reverted for predictions and top gainers. Please make a new payment to access features.",
-          user: {
-            id: user.id,
-            email: user.email,
-            isPredictionPaid: false,
-            isTopGainerPaid: false
-          }
-        })
+        // Return full user data from DB so client retains balance and other fields
+        try {
+          const urows = await sql`SELECT id, email, name, balance, is_prediction_paid, is_top_gainer_paid FROM users WHERE id = ${user.id} LIMIT 1`
+          const u = urows?.[0] || null
+          return NextResponse.json({
+            success: true,
+            message: 'Payment access has been reverted for predictions and top gainers.',
+            user: {
+              id: u?.id || user.id,
+              email: u?.email || user.email,
+              name: u?.name || user.name,
+              balance: Number(u?.balance || 0),
+              isPredictionPaid: !!u?.is_prediction_paid,
+              isTopGainerPaid: !!u?.is_top_gainer_paid
+            }
+          })
+        } catch (e) {
+          console.warn('[REVERT-PAYMENT] Could not fetch full user after revert:', e)
+          return NextResponse.json({ success: true, message: 'Payment access reverted (partial).', user: { id: user.id, email: user.email, isPredictionPaid: false, isTopGainerPaid: false } })
+        }
       } catch (err) {
         console.error('[REVERT-PAYMENT] DB error:', err)
         return NextResponse.json({ error: "Failed to revert payment", details: err instanceof Error ? err.message : String(err) }, { status: 500 })

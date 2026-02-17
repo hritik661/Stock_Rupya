@@ -830,7 +830,22 @@ export default function PortfolioPage() {
               (() => {
                 const raw = localStorage.getItem(`options_positions_${user.email}`) || '[]'
                 const positions = JSON.parse(raw) as any[]
-                if (!positions || positions.length === 0) {
+
+                // Normalize stored positions to ensure numeric fields (price, quantity, lotSize)
+                const normalizedPositions = (positions || []).map((p: any) => ({
+                  id: String(p.id || Math.random().toString(36).substring(7)),
+                  type: p.type === 'PE' ? 'PE' : 'CE',
+                  action: p.action === 'SELL' ? 'SELL' : 'BUY',
+                  index: p.index || p.symbol || p.index_name || 'NIFTY',
+                  strike: Number(p.strike || p.strike_price) || 0,
+                  price: Number(p.price || p.entryPrice || p.entry_price) || 0,
+                  quantity: Math.max(0, Number(p.quantity) || 0),
+                  lotSize: Math.max(1, Number(p.lotSize || p.lots || 50) || 50),
+                  totalValue: Number(p.totalValue) || (Number(p.price || p.entryPrice || p.entry_price) || 0) * (Number(p.quantity) || 0) * (Number(p.lotSize) || 50),
+                  timestamp: Number(p.timestamp) || Number(p.created_at) || Date.now(),
+                }))
+
+                if (!normalizedPositions || normalizedPositions.length === 0) {
                   return (
                     <div className="text-xs md:text-sm text-muted-foreground">No options history yet.</div>
                   )
@@ -838,7 +853,7 @@ export default function PortfolioPage() {
 
                 return (
                   <div className="space-y-2 md:space-y-3">
-                    {positions.map((pos) => {
+                    {normalizedPositions.map((pos) => {
                       const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
                       
                       // Check if market is open
@@ -853,6 +868,30 @@ export default function PortfolioPage() {
                       // Use stored last trading price when available, otherwise fallback to entry price
                       const storedLastTradingPrice = getLastTradingPrice(user.email, strikeKey)
                       currentPrice = storedLastTradingPrice ?? pos.price
+
+                      // Debugging: log resolved prices and P&L to browser console to help diagnose zero P/L
+                      try {
+                        if (typeof window !== 'undefined' && window.console && window.console.debug) {
+                          const debugObj = {
+                            id: pos.id,
+                            entryPrice: Number(pos.price),
+                            storedLastTradingPrice,
+                            resolvedCurrentPrice: currentPrice,
+                            quantity: Number(pos.quantity) || 0,
+                            lotSize: Number(pos.lotSize) || 50,
+                            pnlEstimated: calculateOptionsPnL(
+                              Number(pos.price),
+                              Number(currentPrice),
+                              pos.action || 'BUY',
+                              Number(pos.quantity) || 0,
+                              Number(pos.lotSize) || 50
+                            ),
+                          }
+                          console.debug('[Portfolio][Options]', debugObj)
+                        }
+                      } catch (e) {
+                        // ignore
+                      }
                       
                       // Calculate P&L using the options calculator with action and lotSize
                       const pnl = calculateOptionsPnL(
