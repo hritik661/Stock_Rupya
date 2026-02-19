@@ -669,7 +669,7 @@ export default function OptionsPage() {
                               >
                                 {pnlSign ? "+" : "-"}₹{Number(Math.abs(pnl).toFixed(2)).toLocaleString("en-IN")}
                               </div>
-                              <div className="text-[10px] text-muted-foreground">
+                              <div className="text-xs md:text-sm text-muted-foreground">
                                 {pnlSign ? "+" : "-"}{Math.abs(pnlPercent).toFixed(2)}%
                               </div>
                             </TableCell>
@@ -981,7 +981,7 @@ export default function OptionsPage() {
                       >
                         {Number(s.strike).toLocaleString("en-IN")}
                         {s.isATM && (
-                          <Badge variant="secondary" className="ml-1 md:ml-2 text-[8px] md:text-[9px] px-1 py-0">
+                          <Badge variant="secondary" className="ml-1 md:ml-2 text-xs md:text-sm px-1 py-0">
                             ATM
                           </Badge>
                         )}

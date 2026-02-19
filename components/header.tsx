@@ -88,19 +88,19 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
             <div className="flex-1 max-w-lg">
               <div className="relative flex items-center gap-2 group">
                 <div className="relative flex-1">
-                  <Search className="absolute left-2 top-1/2 h-3 w-3 md:h-4 md:w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 md:h-4 md:w-4 -translate-y-1/2 text-primary/60 group-focus-within:text-primary transition-colors duration-300" />
                   <Input
                     placeholder="Search for Any Stock..."
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
                     onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
                     onBlur={() => setTimeout(() => setShowResults(false), 200)}
-                    className="pl-9 pr-3 h-7 md:h-9 bg-secondary/50 border-border/20 hover:border-primary/30 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all rounded-lg md:rounded-xl text-[10px] md:text-sm font-medium placeholder:text-[11px] md:placeholder:text-sm"
+                    className="pl-10 pr-4 h-8 md:h-10 bg-gradient-to-r from-secondary/70 to-secondary/50 border-2 border-primary/20 hover:border-primary/40 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 transition-all duration-300 rounded-xl text-xs md:text-sm font-medium placeholder:text-muted-foreground shadow-lg hover:shadow-primary/20 focus:shadow-primary/30"
                   />
                   {showResults && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-primary/20 bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden z-50 animate-fade-in-up">
+                    <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border-2 border-primary/30 bg-card/95 backdrop-blur-xl shadow-2xl shadow-primary/20 overflow-hidden z-50 animate-fade-in-up">
                       {searching && (
-                        <div className="px-4 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
                           <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           Searching...
                         </div>
@@ -109,14 +109,14 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                         <button
                           key={`${result.symbol}-${result.exchange}`}
                           onClick={() => handleSelectStock(result.symbol)}
-                          className="w-full px-4 py-3 text-left hover:bg-secondary/50 transition-colors border-b border-border/10 last:border-b-0"
+                          className="w-full px-4 py-3 text-left hover:bg-primary/10 transition-all duration-200 border-b border-border/10 last:border-b-0 group/item"
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-semibold text-sm">{result.symbol}</p>
+                              <p className="font-semibold text-sm text-primary group-hover/item:text-primary/80 transition-colors">{result.symbol}</p>
                               <p className="text-xs text-muted-foreground truncate max-w-xs">{result.name}</p>
                             </div>
-                            <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded">
+                            <span className="text-xs font-medium text-primary/70 bg-primary/10 px-2.5 py-1 rounded-lg group-hover/item:bg-primary/20 transition-colors">
                               {result.exchange}
                             </span>
                           </div>
@@ -128,9 +128,9 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                 
                 {/* Mobile balance - inline with search */}
                 {user && !hideBalance && (
-                  <div className="md:hidden flex items-center px-2 py-1.5 rounded-lg bg-primary/10 border border-primary/30">
-                    <Wallet className="h-3 w-3 text-primary" />
-                    <span className="text-[10px] font-semibold font-mono text-primary ml-1">{formatCurrency(user.balance)}</span>
+                  <div className="md:hidden flex items-center px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/10">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span className="text-xs md:text-sm font-semibold font-mono text-primary ml-1.5">{formatCurrency(user.balance)}</span>
                   </div>
                 )}
               </div>
@@ -140,7 +140,7 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                 {/* Left section - Options and Predictions */}
                 <div className="flex gap-0.5 flex-1">
                   <Link href="/options" className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full h-9 text-[10px] border border-cyan-400/50 bg-cyan-500/10 text-cyan-600 font-semibold hover:bg-cyan-500/20 px-1">
+                    <Button variant="outline" size="sm" className="w-full h-9 text-xs md:text-sm border border-cyan-400/50 bg-cyan-500/10 text-cyan-600 font-semibold hover:bg-cyan-500/20 px-1">
                       <div className="flex items-center justify-center gap-0.5">
                         <BarChart3 className="h-3 w-3 text-cyan-500" />
                         <span>Options</span>
@@ -150,7 +150,7 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 relative overflow-hidden group h-9 text-[10px] border bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-blue-600/20 border-purple-400/50 hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 rounded-md px-1"
+                    className="flex-1 relative overflow-hidden group h-9 text-xs md:text-sm border bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-blue-600/20 border-purple-400/50 hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 rounded-md px-1"
                     onClick={() => router.push('/predictions')}
                   >
                     <div className="flex items-center justify-center gap-0.5">
@@ -167,7 +167,7 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                 {/* Right section - Portfolio and About */}
                 <div className="flex gap-0.5 flex-1">
                   <Link href="/portfolio" className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full h-9 text-[10px] border border-blue-400/50 bg-blue-500/10 text-blue-600 font-semibold hover:bg-blue-500/20 px-1">
+                    <Button variant="outline" size="sm" className="w-full h-9 text-xs md:text-sm border border-blue-400/50 bg-blue-500/10 text-blue-600 font-semibold hover:bg-blue-500/20 px-1">
                       <div className="flex items-center justify-center gap-0.5">
                         <Briefcase className="h-3 w-3 text-blue-500" />
                         <span>Portfolio</span>
@@ -175,7 +175,7 @@ export function Header({ isLandingPage = false, hideBalance = false }: { isLandi
                     </Button>
                   </Link>
                   <Link href="/about" className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full h-9 text-[10px] border border-green-400/50 bg-green-500/10 text-green-600 font-semibold hover:bg-green-500/20 rounded-md flex items-center justify-center gap-0.5 px-1">
+                    <Button variant="outline" size="sm" className="w-full h-9 text-xs md:text-sm border border-green-400/50 bg-green-500/10 text-green-600 font-semibold hover:bg-green-500/20 rounded-md flex items-center justify-center gap-0.5 px-1">
                       <Info className="h-3 w-3 text-green-500" />
                       <span>About</span>
                     </Button>

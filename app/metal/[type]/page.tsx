@@ -185,7 +185,7 @@ export default function MetalDetailPage() {
         <IndicesTicker />
         <main className="container mx-auto px-4 py-6">
           <div className="h-8 w-48 bg-secondary rounded animate-pulse mb-6" />
-          <div className="h-[450px] bg-secondary rounded-xl animate-pulse" />
+          <div className="h-[clamp(220px,45vh,520px)] bg-secondary rounded-xl animate-pulse" />
         </main>
       </div>
     )
@@ -416,7 +416,7 @@ export default function MetalDetailPage() {
                   </div>
 
                   {chartLoading ? (
-                    <div className="h-[400px] flex items-center justify-center">
+                    <div className="h-[clamp(220px,40vh,480px)] flex items-center justify-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         <p className="text-sm text-muted-foreground">Loading chart data...</p>
@@ -425,7 +425,7 @@ export default function MetalDetailPage() {
                   ) : (
                     <>
                       <TabsContent value="line" className="mt-0">
-                        <div className="h-[400px] w-full">
+                        <div className="h-[clamp(220px,40vh,480px)] w-full">
                           <ResponsiveContainer width="100%" height="100%">
                             <ComposedChart data={chartData} margin={{ top: 10, right: 90, left: 10, bottom: 20 }}>
                               <defs>

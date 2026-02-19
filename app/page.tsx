@@ -77,8 +77,7 @@ export default function HomePage() {
                 </h1>
               
               </div>
-              <div className="flex items-center gap-1 md:gap-2 glass-morphism px-2 md:px-4 py-1 md:py-2.5 rounded-lg md:rounded-xl animate-scale-bounce text-[9px] md:text-sm">
-                <span className="text-[8px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider">Market</span>
+              <div className="flex items-center gap-1 md:gap-2 glass-morphism px-2 md:px-4 py-1 md:py-2.5 rounded-lg md:rounded-xl animate-scale-bounce text-xs md:text-sm">
                 <MarketStatus />
               </div>
             </div>

@@ -385,38 +385,37 @@ export function GainersLosers() {
             </Card>
           ) : (
             <Card className="shadow-lg bg-card hover:border-primary/30 transition-colors p-1 md:p-2">
-              <CardHeader className="pb-0.5 md:pb-2">
-                <CardTitle className="text-xs md:text-base flex items-center gap-1 md:gap-2">
-                  <TrendingUp className="h-2.5 w-2.5 md:h-4 md:w-4 text-primary" />
+              <CardHeader className="pb-1 md:pb-3">
+                <CardTitle className="text-sm md:text-xl font-bold flex items-center gap-2 md:gap-3">
+                  <TrendingUp className="h-4 w-4 md:h-6 md:w-6 text-primary" />
                   Top Gainers (5%+)
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-0.5 md:space-y-2 max-h-48 md:max-h-80 overflow-y-auto">
+              <CardContent className="space-y-1 md:space-y-3 max-h-48 md:max-h-96 overflow-y-auto">
                 {Array.from(new Map(gainers.map(s => [s.symbol, s])).values()).map((stock) => (
                   <Link
                     key={stock.symbol}
                     href={`/stock/${encodeURIComponent(stock.symbol)}`}
                     className="block"
                   >
-                    <div className="flex items-center justify-between p-1 md:p-2 rounded-md md:rounded-lg bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer border-2 border-border/40 hover:border-border/60">
+                    <div className="flex items-center justify-between p-2 md:p-3 rounded-md md:rounded-lg bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer border-2 border-border/40 hover:border-border/60">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-0.5 md:gap-2 mb-0.5 md:mb-1">
-                          <h3 className="font-semibold text-xs md:text-sm truncate">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
+                          <h3 className="font-semibold text-sm md:text-base truncate">
                             {stock.symbol.replace('.NS', '').replace('.BO', '')}
                           </h3>
                           <Badge
                             variant="default"
-                            className="text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 bg-primary/20 text-primary"
-                          >
-                            {formatPercentage(stock.regularMarketChangePercent)}
+                            className="text-xs md:text-sm px-2 md:px-2.5 py-0.5 bg-primary/20 text-primary font-semibold"
+                          > {formatPercentage(stock.regularMarketChangePercent)}
                           </Badge>
                         </div>
-                        <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+                        <p className="text-xs md:text-sm text-muted-foreground truncate\">
                           {stock.shortName || stock.longName}
                         </p>
                       </div>
-                      <div className="text-right ml-1 md:ml-2">
-                        <p className="font-mono font-semibold text-[10px] md:text-sm">
+                      <div className="text-right ml-2 md:ml-3\">
+                        <p className="font-mono font-semibold text-sm md:text-base\">
                           {formatCurrency(stock.regularMarketPrice)}
                         </p>
                         <p className="text-[10px] md:text-xs flex items-center gap-0.5 md:gap-1 text-primary">
@@ -439,13 +438,13 @@ export function GainersLosers() {
 
         {/* Top Losers Card */}
         <Card className="shadow-lg bg-card border-2 border-border/50 hover:border-border/70 transition-colors p-1 md:p-2">
-          <CardHeader className="pb-0.5 md:pb-2">
-            <CardTitle className="text-xs md:text-base flex items-center gap-1 md:gap-2">
-              <TrendingDown className="h-2.5 w-2.5 md:h-4 md:w-4 text-destructive" />
+          <CardHeader className="pb-1 md:pb-3">
+            <CardTitle className="text-sm md:text-xl font-bold flex items-center gap-2 md:gap-3">
+              <TrendingDown className="h-4 w-4 md:h-6 md:w-6 text-destructive" />
               Top Losers 
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-0.5 md:space-y-2 max-h-48 md:max-h-80 overflow-y-auto">
+          <CardContent className="space-y-1 md:space-y-3 max-h-48 md:max-h-96 overflow-y-auto">
             {Array.from(new Map(losers.map(s => [s.symbol, s])).values()).map((stock) => (
               <Link
                 key={stock.symbol}
@@ -454,23 +453,23 @@ export function GainersLosers() {
               >
                 <div className="flex items-center justify-between p-1 md:p-2 rounded-md md:rounded-lg bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer border-2 border-border/40 hover:border-border/60">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-0.5 md:gap-2 mb-0.5 md:mb-1">
-                      <h3 className="font-semibold text-xs md:text-sm truncate">
+                    <div className="flex items-center gap-1 md:gap-2 mb-0.5 md:mb-1">
+                      <h3 className="font-semibold text-sm md:text-base truncate">
                         {stock.symbol.replace('.NS', '').replace('.BO', '')}
                       </h3>
-                      <span className="text-[10px] md:text-xs text-destructive font-semibold">
+                      <span className="text-xs md:text-sm text-destructive font-semibold">
                         {formatPercentage(stock.regularMarketChangePercent)}%
                       </span>
                     </div>
-                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">
                       {stock.shortName || stock.longName}
                     </p>
                   </div>
-                  <div className="text-right ml-1 md:ml-2">
-                    <p className="font-mono font-semibold text-[10px] md:text-sm">
+                  <div className="text-right ml-2 md:ml-3">
+                    <p className="font-mono font-semibold text-sm md:text-base">
                       {formatCurrency(stock.regularMarketPrice)}
                     </p>
-                    <p className="text-[10px] md:text-xs flex items-center gap-0.5 md:gap-1 text-destructive">
+                    <p className="text-xs md:text-sm flex items-center gap-0.5 md:gap-1 text-destructive">
                       <ArrowDownRight className="h-2 w-2 md:h-2.5 md:w-2.5" />
                       {formatCurrency(stock.regularMarketChange)}
                     </p>
@@ -479,7 +478,7 @@ export function GainersLosers() {
               </Link>
             ))}
             {losers.length === 0 && (
-              <p className="text-[10px] md:text-sm text-muted-foreground text-center py-2 md:py-4">
+              <p className="text-xs md:text-sm text-muted-foreground text-center py-2 md:py-4">
                 No losers available
               </p>
             )}

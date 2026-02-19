@@ -600,26 +600,40 @@ export default function PredictionsPage() {
                 <button
                   onClick={() => startPayment()}
                   disabled={isProcessingPayment}
-                  className="relative w-full max-w-xl flex items-center justify-center px-6 py-3 rounded-2xl font-extrabold text-white shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-105"
+                  className="relative w-full max-w-xl flex items-center justify-center px-6 py-4 rounded-2xl font-extrabold text-white shadow-2xl overflow-hidden transform transition-all duration-500 hover:scale-110 active:scale-95 group" style={{ background: 'linear-gradient(135deg, #a855f7, #ec4899, #6366f1)' }}
                 >
-                  <span className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-pink-600 to-indigo-600 opacity-80 blur-lg animate-pulse-slow"></span>
-                  <span className="relative z-10 flex items-center gap-3">
-                   
-                    <span>{isProcessingPayment ? 'Processing...' : '🔓 Unlock ₹200 - Access Predictions Now'}</span>
+                  {/* Animated background glow */}
+                  <span className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 opacity-80 blur-lg animate-pulse-slow"></span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-indigo-600/20 animate-pulse"></span>
+                  
+                  {/* Shimmer effect */}
+                  <span className="absolute inset-0 overflow-hidden rounded-2xl">
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 animate-shimmer"></span>
+                  </span>
+                  
+                  {/* Floating particles effect */}
+                  <span className="absolute inset-0 rounded-2xl overflow-hidden">
+                    <span className="absolute top-0 left-1/4 w-2 h-2 bg-purple-200 rounded-full animate-ping opacity-75"></span>
+                    <span className="absolute top-1/3 right-1/4 w-2 h-2 bg-pink-200 rounded-full animate-ping opacity-75" style={{ animationDelay: '0.5s' }}></span>
+                    <span className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-indigo-200 rounded-full animate-ping opacity-75" style={{ animationDelay: '1s' }}></span>
+                  </span>
+                  
+                  <span className="relative z-10 flex items-center gap-3 group-hover:scale-105 transition-transform duration-300">
+                    <span className="text-base md:text-lg font-bold group-hover:animate-bounce" style={{ animationDuration: '0.6s' }}>{isProcessingPayment ? 'Processing...' : '🔓 Unlock ₹200 - Access Predictions Now'}</span>
                   </span>
                 </button>
               </div>
 
               <div className="text-center mb-4 space-y-2 animate-fade-in-up">
-                <h1 className="text-[18px] font-extrabold">🔮 Access Premium Stock Predictions</h1>
-                <p className="text-[13px] text-muted-foreground max-w-2xl mx-auto">Get access to high-quality stock predictions backed by strong fundamentals and real market strength — at a price that's almost unbelievable.</p>
+                <h1 className="text-lg md:text-2xl font-extrabold">🔮 Access Premium Stock Predictions</h1>
+                <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">Get access to high-quality stock predictions backed by strong fundamentals and real market strength — at a price that's almost unbelievable.</p>
               </div>
 
               <div className="bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/40 rounded-2xl p-4 md:p-6 mb-4 animate-bounce-slow">
                 <div className="text-center mb-3">
-                  <p className="text-[11px] text-muted-foreground mb-2 font-medium tracking-widest uppercase">🎯 SPECIAL LIFETIME OFFER</p>
-                  <h2 className="text-[22px] font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Just ₹200</h2>
-                  <ul className="space-y-2 text-[12px] text-foreground font-semibold max-w-md mx-auto">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-2 font-medium tracking-widest uppercase">🎯 SPECIAL LIFETIME OFFER</p>
+                  <h2 className="text-xl md:text-2xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Just ₹200</h2>
+                  <ul className="space-y-2 text-sm md:text-base text-foreground font-semibold max-w-md mx-auto">
                     <li className="flex items-center gap-3"><span className="text-2xl">✓</span><span>Pay only once</span></li>
                     <li className="flex items-center gap-3"><span className="text-2xl">✓</span><span>No monthly fees</span></li>
                     <li className="flex items-center gap-3"><span className="text-2xl">✓</span><span>No hidden charges</span></li>
@@ -637,7 +651,7 @@ export default function PredictionsPage() {
               <div className="flex flex-col gap-2 justify-center animate-fade-in">
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="px-4 py-2 rounded-md border-2 border-muted-foreground hover:border-foreground hover:bg-muted/50 transition font-semibold text-[12px] text-foreground"
+                  className="px-4 py-2 rounded-md border-2 border-muted-foreground hover:border-foreground hover:bg-muted/50 transition font-semibold text-sm md:text-base text-foreground"
                 >
                   ✕ Cancel
                 </button>
@@ -649,71 +663,75 @@ export default function PredictionsPage() {
 
       {/* In-page payment iframe + manual payment-id verification */}
       {showPaymentIframe && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
-          <div className="relative w-full max-w-4xl sm:rounded-xl sm:shadow-2xl h-screen sm:h-[96vh] md:h-[96vh] bg-gradient-to-br from-gray-900/90 to-black/90 sm:overflow-hidden overflow-auto flex flex-col ring-1 ring-white/5">
-            {/* Mobile close button (fixed inside modal) */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-1 sm:p-3 md:p-6">
+          <div className="relative w-full h-[95vh] sm:h-[92vh] md:h-[90vh] max-w-7xl rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br from-gray-900/95 to-black/95 overflow-hidden flex flex-col ring-1 ring-white/10">
+            {/* Close button */}
             <button
               onClick={() => setShowPaymentIframe(false)}
               aria-label="Close payment"
-              className="sm:hidden absolute top-3 right-3 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white shadow-md"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 z-50 w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shadow-lg text-lg sm:text-xl"
             >
               ✕
             </button>
 
-            <div className="flex items-center justify-between p-3 md:p-4 border-b border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="text-lg font-bold text-white">Complete Payment</div>
-                <div className="hidden md:inline-block px-3 py-1 text-xs rounded bg-white/5 text-white/90">Secure</div>
+            {/* Header - compact on mobile */}
+            <div className="flex items-center justify-between px-2 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 border-b border-white/10 bg-black/40 flex-shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="text-xs sm:text-base md:text-lg font-bold text-white">Complete Payment</div>
+                <div className="hidden sm:inline-block px-2 py-0.5 text-xs rounded-md bg-white/10 text-white/80 font-medium">Secure</div>
               </div>
-              <div>
-                <button
-                  onClick={() => setShowPaymentIframe(false)}
-                  className="hidden sm:inline-block px-3 py-1 rounded bg-white/6 hover:bg-white/10 text-sm text-white"
-                >
-                  Close
-                </button>
-              </div>
+              <button
+                onClick={() => setShowPaymentIframe(false)}
+                className="hidden sm:inline-block px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/8 hover:bg-white/15 text-xs text-white font-medium transition-colors"
+              >
+                Close
+              </button>
             </div>
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 bg-black">
-              <div className="col-span-1 md:col-span-8 border-b md:border-b-0 md:border-r border-white/5 min-h-0">
+            {/* Main Grid - 2 columns on all screens */}
+            <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-0 overflow-hidden min-h-0">
+              {/* Iframe Section - 1 col mobile, 2 cols tablet, 3 cols desktop */}
+              <div className="sm:col-span-2 md:col-span-3 border-r border-white/10 min-h-0 bg-white">
                 <iframe
                   src={paymentUrl || ''}
                   title="Payment"
-                  className="w-full border-0 bg-white"
+                  className="w-full h-full border-0"
                   allowFullScreen
                   loading="lazy"
-                  style={{ height: 'calc(100vh - 56px)' }}
                 />
               </div>
-              <div className="col-span-1 md:col-span-4 p-6 space-y-4 bg-gradient-to-t from-black/60 to-transparent">
-                <div className="text-sm text-white/80 animate-fade-in-up">After completing payment, copy the Razorpay payment id (for example <span className="font-mono">pay_...</span>) from the success screen and paste it below to verify and unlock Predictions.</div>
 
-                <div className="flex items-center gap-2 min-w-0 animate-pulse-soft">
-                  <input
-                    value={paymentIdInput}
-                    onChange={(e) => { setPaymentIdInput(e.target.value); setPaymentVerifyError(null) }}
-                    placeholder="Payment id (e.g., pay_XXX)"
-                    className="flex-1 min-w-0 px-3 py-2 bg-white/5 hover:bg-white/10 placeholder-white/60 rounded-md text-white outline-none transition-colors focus:bg-white/15 focus:ring-2 focus:ring-emerald-400"
-                  />
-                  <button
-                    onClick={handleManualVerify}
-                    disabled={verifyingPayment}
-                    className="flex-shrink-0 px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
-                  >
-                    {verifyingPayment ? 'Verifying...' : 'Verify'}
-                  </button>
-                </div>
-                {paymentVerifyError && <p className="text-sm text-red-500 animate-shake">{paymentVerifyError}</p>}
+              {/* Right Sidebar - 1 col mobile, 1 col tablet, 2 cols desktop - COMPACT, NO SCROLL */}
+              <div className="sm:col-span-1 md:col-span-2 p-1.5 sm:p-3 md:p-5 bg-gradient-to-b from-black/60 to-black/40 flex flex-col min-h-0 overflow-hidden">
+                <div className="space-y-1.5 sm:space-y-3 flex-1 flex flex-col justify-start">
+                  <div className="text-[10px] sm:text-xs md:text-sm text-white/80 leading-tight">Copy Razorpay ID from success screen and paste below to verify.</div>
 
-                <div className="pt-4 border-t border-white/5 text-sm text-white/70 animate-fade-in">
-                  <div className="font-semibold mb-2 text-emerald-300">Why this unlock is awesome</div>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>AI-curated predictions with strong fundamentals.</span></li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Lifetime access — pay once, use forever.</span></li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Regular updates and actionable insights.</span></li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform"><span className="text-emerald-400 mt-1">✓</span><span>Secure Razorpay payment integration.</span></li>
-                  </ul>
+                  <div className="flex items-center gap-0.5 sm:gap-1.5 min-w-0">
+                    <input
+                      value={paymentIdInput}
+                      onChange={(e) => { setPaymentIdInput(e.target.value); setPaymentVerifyError(null) }}
+                      placeholder="pay_XXX"
+                      className="flex-1 min-w-0 px-1.5 sm:px-2.5 md:px-3 py-1 sm:py-1.5 md:py-2 text-[10px] sm:text-xs md:text-sm bg-white/8 hover:bg-white/12 placeholder-white/50 rounded text-white outline-none transition-colors focus:bg-white/15 focus:ring-1 focus:ring-emerald-400"
+                    />
+                    <button
+                      onClick={handleManualVerify}
+                      disabled={verifyingPayment}
+                      className="flex-shrink-0 px-1.5 sm:px-2.5 md:px-3 py-1 sm:py-1.5 md:py-2 rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white text-[10px] sm:text-xs md:text-sm font-bold transition-all transform hover:scale-105 active:scale-95"
+                    >
+                      {verifyingPayment ? '⏳' : 'Verify'}
+                    </button>
+                  </div>
+                  {paymentVerifyError && <p className="text-[9px] sm:text-xs text-red-400">{paymentVerifyError}</p>}
+
+                  <div className="pt-1 sm:pt-2 border-t border-white/10">
+                    <div className="font-semibold mb-1 text-emerald-300 text-[10px] sm:text-xs md:text-sm">✨ Benefits</div>
+                    <ul className="space-y-0.5 sm:space-y-1 text-[9px] sm:text-xs text-white/70">
+                      <li className="flex items-start gap-1"><span className="text-emerald-400 flex-shrink-0">✓</span><span>AI predictions</span></li>
+                      <li className="flex items-start gap-1"><span className="text-emerald-400 flex-shrink-0">✓</span><span>Lifetime access</span></li>
+                      <li className="flex items-start gap-1"><span className="text-emerald-400 flex-shrink-0">✓</span><span>Regular updates</span></li>
+                      <li className="flex items-start gap-1"><span className="text-emerald-400 flex-shrink-0">✓</span><span>Secure payment</span></li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

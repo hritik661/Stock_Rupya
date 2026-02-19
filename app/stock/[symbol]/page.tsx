@@ -162,7 +162,7 @@ export default function StockDetailPage() {
           <Skeleton className="h-8 w-48 mb-6" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              <Skeleton className="h-[450px] rounded-xl" />
+              <Skeleton className="h-[clamp(260px,45vh,560px)] rounded-xl" />
               <Skeleton className="h-48 rounded-xl" />
             </div>
             <div className="space-y-6">
@@ -287,7 +287,7 @@ export default function StockDetailPage() {
                   </div>
 
                   {chartLoading ? (
-                    <div className="h-[400px] flex items-center justify-center">
+                    <div className="h-[clamp(220px,40vh,480px)] flex items-center justify-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         <p className="text-sm text-muted-foreground">Loading chart data...</p>

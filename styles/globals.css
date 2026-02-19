@@ -4,6 +4,13 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Responsive breakpoints and container sizing */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --container-max: 1200px;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -130,11 +137,13 @@
 
 /* Container utility for consistent layout */
 .container {
-  max-width: 1200px;
+  /* fluid and capped to --container-max for very large screens */
+  max-width: min(var(--container-max), 95vw);
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: clamp(0.75rem, 3.5vw, 1.5rem);
+  padding-right: clamp(0.75rem, 3.5vw, 1.5rem);
 }
 
 /* Responsive typography */
@@ -164,19 +173,19 @@ p, li, span, a { line-height: 1.6; }
 }
 
 .login-blob--one {
-  width: 520px;
-  height: 520px;
-  right: -120px;
-  top: -80px;
+  width: clamp(220px, 35vw, 520px);
+  height: clamp(220px, 35vw, 520px);
+  right: clamp(-120px, -8vw, -40px);
+  top: clamp(-80px, -6vw, -24px);
   background: radial-gradient(circle at 30% 30%, rgba(16,185,129,0.95), rgba(16,185,129,0.55) 35%, rgba(16,185,129,0.08) 60%, transparent 70%);
   animation: float-blob 10s ease-in-out infinite;
 }
 
 .login-blob--two {
-  width: 420px;
-  height: 420px;
-  left: -120px;
-  bottom: -100px;
+  width: clamp(180px, 30vw, 420px);
+  height: clamp(180px, 30vw, 420px);
+  left: clamp(-120px, -8vw, -40px);
+  bottom: clamp(-100px, -6vw, -32px);
   background: radial-gradient(circle at 70% 70%, rgba(59,130,246,0.9), rgba(59,130,246,0.45) 35%, rgba(99,102,241,0.08) 60%, transparent 70%);
   animation: float-blob 12s ease-in-out infinite reverse;
 }
@@ -480,14 +489,25 @@ img, .logo-image, .avatar { max-width: 100%; height: auto; display: block; }
   .modal .modal-content, dialog .modal-content, [role="dialog"] .modal-content {
     width: 100% !important;
     max-width: 100% !important;
-    height: 100vh !important;
+    height: auto !important;
+    max-height: 95vh !important;
     border-radius: 0 !important;
     padding: 1rem !important;
+    overflow: auto !important;
   }
 
   /* Make header compact and wrap navigation into stacked layout */
   header .nav, header nav { display: flex; flex-direction: column; gap: 0.5rem; }
   .container { padding-left: 12px; padding-right: 12px; }
+}
+
+/* Responsive embeds (iframes/videos) */
+.embed-iframe, iframe, video {
+  width: 100%;
+  height: auto;
+  max-height: 85vh;
+  border: 0;
+  display: block;
 }
 
 @keyframes fade-in-up {

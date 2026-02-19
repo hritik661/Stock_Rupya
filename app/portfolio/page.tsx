@@ -420,7 +420,7 @@ export default function PortfolioPage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Available Balance</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Available Balance</p>
                   <p className="text-base md:text-2xl font-bold font-mono">{formatCurrency(user.balance)}</p>
                 </div>
                 <div className="h-6 w-6 md:h-10 md:w-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -434,7 +434,7 @@ export default function PortfolioPage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Portfolio Value</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Portfolio Value</p>
                   <p className="text-base md:text-2xl font-bold font-mono">{formatCurrency(totalCurrentValue)}</p>
                 </div>
                 <div className="h-6 w-6 md:h-10 md:w-10 rounded-full bg-accent/20 flex items-center justify-center">
@@ -448,7 +448,7 @@ export default function PortfolioPage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Total Invested</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Total Invested</p>
                   <p className="text-base md:text-2xl font-bold font-mono">{formatCurrency(totalInvested)}</p>
                 </div>
                 <div className="h-6 w-6 md:h-10 md:w-10 rounded-full bg-secondary flex items-center justify-center">
@@ -462,12 +462,12 @@ export default function PortfolioPage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Total P&L</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Total P&L</p>
                   <p className={`text-base md:text-2xl font-bold font-mono ${totalPnL >= 0 ? "text-primary" : "text-destructive"}`}>
                     {totalPnL >= 0 ? "+" : ""}
                     {formatCurrency(totalPnL)}
                   </p>
-                  <p className={`text-[10px] md:text-sm ${totalPnL >= 0 ? "text-primary" : "text-destructive"}`}>
+                  <p className={`text-xs md:text-sm ${totalPnL >= 0 ? "text-primary" : "text-destructive"}`}>
                     {formatPercentage(totalPnLPercent)}
                   </p>
                 </div>
@@ -575,47 +575,177 @@ export default function PortfolioPage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2 md:space-y-3">
+              <div className="space-y-3 md:space-y-4">
                 {holdings.map((holding) => {
                   const isOption = typeof holding.symbol === 'string' && holding.symbol.includes('-OPT-')
                   return (
                     <Link key={holding.symbol} href={`/stock/${encodeURIComponent(holding.symbol)}`} className="block">
-                      <div className="flex items-center justify-between p-2 md:p-4 rounded-md md:rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
-                        <div className="flex items-center gap-2 md:gap-4">
+                      {/* Mobile View */}
+                      <div className="md:hidden rounded-lg bg-secondary/60 border border-border/50 p-3">
+                        <div className="flex items-start justify-between mb-3">
                           <div>
-                            <h3 className="font-semibold text-sm md:text-base">{holding.symbol.replace('.NS', '')}</h3>
+                            <h3 className="font-semibold text-base">{holding.symbol.replace('.NS', '')}</h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">{holding.quantity} {isOption ? 'lots' : 'shares'}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center gap-1 text-sm">
+                              {holding.pnl >= 0 ? (
+                                <ArrowUpRight className="h-3 w-3 text-primary" />
+                              ) : (
+                                <ArrowDownRight className="h-3 w-3 text-destructive" />
+                              )}
+                              <span className={holding.pnl >= 0 ? "text-primary font-semibold" : "text-destructive font-semibold"}>
+                                {formatPercentage(holding.pnlPercent)}
+                              </span>
+                            </div>
+                            <p className={`text-sm font-semibold mt-1 ${holding.pnl >= 0 ? "text-primary" : "text-destructive"}`}>
+                              {holding.pnl >= 0 ? "+" : ""}
+                              {formatCurrency(holding.pnl)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Entry and Current Price Boxes */}
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <div className="bg-background/50 rounded border border-border/60 p-2">
+                            <p className="text-xs text-muted-foreground mb-1">Entry</p>
+                            <p className="font-mono font-semibold text-sm">{formatCurrency(holding.avgPrice)}</p>
+                          </div>
+                          <div className="bg-background/50 rounded border border-border/60 p-2">
+                            <p className="text-xs text-muted-foreground mb-1">Current</p>
+                            <p className="font-mono font-semibold text-sm">
+                              {isOption 
+                                ? formatCurrency(getLastTradingPrice(user.email, holding.symbol.replace('-OPT', '')) ?? holding.avgPrice)
+                                : formatCurrency(holding.quote?.regularMarketPrice || holding.avgPrice)
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Portfolio Value and Buttons */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Portfolio Value</p>
+                            <p className="font-mono font-semibold text-sm">{formatCurrency(holding.currentValue)}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-green-600/90 hover:bg-green-700 text-white font-semibold"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                try {
+                                  if (!user) return
+                                  const storageKey = `holdings_${user.email}`
+                                  const raw = localStorage.getItem(storageKey) || '[]'
+                                  const arr: any[] = JSON.parse(raw)
+
+                                  const idx = arr.findIndex((h) => h.symbol === holding.symbol)
+                                  if (idx >= 0) {
+                                    const item = arr[idx]
+                                    const price = holding.quote?.regularMarketPrice || holding.avgPrice
+
+                                    if (price > user.balance) {
+                                      toast({ title: 'Insufficient Balance', description: `You need ${formatCurrency(price - user.balance)} more to buy.`, variant: 'destructive' })
+                                      return
+                                    }
+
+                                    const qtyStr = window.prompt('How many shares to buy?', '1')
+                                    const qtyAdd = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                    if (!qtyAdd) return
+                                    const existing = arr[idx]
+                                    const newQty = existing.quantity + qtyAdd
+                                    const newAvg = (existing.avgPrice * existing.quantity + price * qtyAdd) / newQty
+                                    arr[idx] = { ...existing, quantity: newQty, avgPrice: newAvg }
+                                    localStorage.setItem(storageKey, JSON.stringify(arr))
+                                    
+                                    const balanceResult = await deductBalance(price * qtyAdd, "BUY", holding.symbol, qtyAdd, price)
+                                    if (!balanceResult.success) {
+                                      toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                      return
+                                    }
+
+                                    try { storeLastTradingPrice(user.email, holding.symbol, price) } catch {}
+                                    toast({ title: 'Bought', description: `Bought ${qtyAdd} shares of ${holding.symbol}` })
+                                  }
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Buy
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-red-600/90 hover:bg-red-700 text-white font-semibold"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                try {
+                                  if (!user) return
+                                  const storageKey = `holdings_${user.email}`
+                                  const raw = localStorage.getItem(storageKey) || '[]'
+                                  const arr: any[] = JSON.parse(raw)
+
+                                  const idx = arr.findIndex((h) => h.symbol === holding.symbol)
+                                  if (idx >= 0) {
+                                    const item = arr[idx]
+                                    const price = holding.quote?.regularMarketPrice || holding.avgPrice
+
+                                    const qtyStr = window.prompt('How many shares to sell?', '1')
+                                    const qtySell = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                    if (!qtySell) return
+                                    if (qtySell > item.quantity) {
+                                      toast({ title: 'Not Enough Shares', description: `You only have ${item.quantity} shares.`, variant: 'destructive' })
+                                      return
+                                    }
+
+                                    const remaining = item.quantity - qtySell
+                                    if (remaining === 0) {
+                                      arr.splice(idx, 1)
+                                    } else {
+                                      arr[idx] = { ...item, quantity: remaining }
+                                    }
+                                    localStorage.setItem(storageKey, JSON.stringify(arr))
+
+                                    const balanceResult = await addBalance(price * qtySell, "SELL", holding.symbol, qtySell, price)
+                                    if (!balanceResult.success) {
+                                      toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                      return
+                                    }
+
+                                    try { storeLastTradingPrice(user.email, holding.symbol, price) } catch {}
+                                    toast({ title: 'Sold', description: `Sold ${qtySell} shares of ${holding.symbol}` })
+                                    setTimeout(() => window.location.reload(), 500)
+                                  }
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Sell
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop/Tablet View */}
+                      <div className="hidden md:flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors border border-border/30">
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <h3 className="font-semibold text-base">{holding.symbol.replace('.NS', '')}</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">{holding.quantity} {isOption ? 'lots' : 'shares'}</p>
                           </div>
                         </div>
 
-
-                        {/* Always show entry and current price in mobile view */}
-                        <div className="flex flex-col items-end sm:hidden mr-2">
-                          <div className="flex gap-2">
-                            <div className="text-center">
-                              <p className="text-[10px] text-muted-foreground">Entry</p>
-                              <p className="font-mono text-xs">{formatCurrency(holding.avgPrice)}</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-[10px] text-muted-foreground">Current</p>
-                              <p className="font-mono text-xs">
-                                {isOption 
-                                  ? formatCurrency(getLastTradingPrice(user.email, holding.symbol.replace('-OPT', '')) ?? holding.avgPrice)
-                                  : formatCurrency(holding.quote?.regularMarketPrice || holding.avgPrice)
-                                }
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Desktop/tablet: show as before */}
-                        <div className="text-center hidden sm:block">
+                        <div className="text-center">
                           <p className="text-xs md:text-sm text-muted-foreground">Entry Price</p>
-                          <p className="font-mono text-xs md:text-sm">{formatCurrency(holding.avgPrice)}</p>
+                          <p className="font-mono text-xs md:text-sm font-medium">{formatCurrency(holding.avgPrice)}</p>
                         </div>
-                        <div className="text-center hidden sm:block">
+                        <div className="text-center">
                           <p className="text-xs md:text-sm text-muted-foreground">Current Price</p>
-                          <p className="font-mono text-xs md:text-sm">
+                          <p className="font-mono text-xs md:text-sm font-medium">
                             {isOption 
                               ? formatCurrency(getLastTradingPrice(user.email, holding.symbol.replace('-OPT', '')) ?? holding.avgPrice)
                               : formatCurrency(holding.quote?.regularMarketPrice || holding.avgPrice)
@@ -623,7 +753,7 @@ export default function PortfolioPage() {
                           </p>
                         </div>
 
-                        <div className="text-center hidden md:block">
+                        <div className="text-center hidden lg:block">
                           <p className="text-xs md:text-sm text-muted-foreground">Portfolio Value</p>
                           <p className="font-mono font-medium text-xs md:text-sm">{formatCurrency(holding.currentValue)}</p>
                         </div>
@@ -631,26 +761,25 @@ export default function PortfolioPage() {
                         <div className="text-right">
                           <div className="flex items-center gap-1 text-xs md:text-sm">
                             {holding.pnl >= 0 ? (
-                              <ArrowUpRight className="h-2 w-2 md:h-3 md:w-3 text-primary" />
+                              <ArrowUpRight className="h-3 w-3 text-primary" />
                             ) : (
-                              <ArrowDownRight className="h-2 w-2 md:h-3 md:w-3 text-destructive" />
+                              <ArrowDownRight className="h-3 w-3 text-destructive" />
                             )}
-                            <span className={holding.pnl >= 0 ? "text-primary" : "text-destructive"}>
+                            <span className={holding.pnl >= 0 ? "text-primary font-semibold" : "text-destructive font-semibold"}>
                               {formatPercentage(holding.pnlPercent)}
                             </span>
                           </div>
                           <p
-                            className={`text-xs md:text-sm font-medium mt-0.5 md:mt-1 ${holding.pnl >= 0 ? "text-primary" : "text-destructive"}`}
+                            className={`text-xs md:text-sm font-medium mt-1 ${holding.pnl >= 0 ? "text-primary" : "text-destructive"}`}
                           >
                             {holding.pnl >= 0 ? "+" : ""}
                             {formatCurrency(holding.pnl)}
                           </p>
                         </div>
-                        <div className="ml-2 md:ml-4 flex items-center gap-1 md:gap-2">
+                        <div className="ml-4 flex items-center gap-2">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-xs px-2 md:px-3 h-6 md:h-8"
+                            className="text-xs px-2 md:px-3 h-6 md:h-8 bg-green-600/90 hover:bg-green-700 text-white font-semibold"
                             onClick={async (e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -702,8 +831,7 @@ export default function PortfolioPage() {
 
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-xs px-2 md:px-3 h-6 md:h-8"
+                            className="text-xs px-2 md:px-3 h-6 md:h-8 bg-red-600/90 hover:bg-red-700 text-white font-semibold"
                             onClick={async (e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -908,166 +1036,310 @@ export default function PortfolioPage() {
                       )
 
                       return (
-                        <div key={pos.id} className="flex items-center justify-between p-2 md:p-3 rounded-md md:rounded-lg bg-secondary/50">
-                          <div>
-                            <div className="font-medium text-sm md:text-base">{pos.index} {Number(pos.strike).toLocaleString("en-IN")} {pos.type}</div>
-                            <div className="text-[10px] md:text-xs text-muted-foreground">{pos.action} • {pos.quantity} lot(s) @ ₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")} = ₹{Number((pos.price * pos.quantity * pos.lotSize).toFixed(2)).toLocaleString("en-IN")}</div>
-                          </div>
-                              <div className="text-right">
-                                <div className={`font-mono font-semibold text-sm md:text-base ${pnl >= 0 ? 'text-primary' : 'text-destructive'}`}>{pnl >= 0 ? '+' : '-'}₹{Number(Math.abs(pnl).toFixed(2)).toLocaleString("en-IN")}</div>
-                                <div className="text-[10px] md:text-xs text-muted-foreground">Entry: ₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")} • Now: ₹{Number(currentPrice.toFixed(2)).toLocaleString("en-IN")} • {pnlPercent >= 0 ? '+' : '-'}{Math.abs(pnlPercent).toFixed(2)}%</div>
-                              </div>
-                              <div className="ml-2 md:ml-4 flex items-center gap-1 md:gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-xs px-2 md:px-3 h-6 md:h-8"
-                                  onClick={async () => {
-                                    try {
-                                      if (!user) return
-                                      // BUY more lots: create a new BUY position at current price
-                                      const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
-                                      const ops: any[] = JSON.parse(rawOps)
-
-                                      const qtyStr = window.prompt('How many lots to buy?', '1')
-                                      const qtyBuy = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
-                                      if (!qtyBuy) return
-
-                                      const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
-                                      const current = getLastTradingPrice(user.email, strikeKey) ?? pos.price
-
-                                      const newPos = {
-                                        id: Math.random().toString(36).substring(7),
-                                        type: pos.type,
-                                        action: 'BUY',
-                                        index: pos.index,
-                                        strike: pos.strike,
-                                        symbol: `${pos.index}-${pos.strike}-${pos.type}`,
-                                        price: current,
-                                        quantity: qtyBuy,
-                                        lotSize: pos.lotSize || 50,
-                                        totalValue: current * qtyBuy * (pos.lotSize || 50),
-                                        timestamp: Date.now(),
-                                      }
-
-                                      const totalCost = newPos.totalValue
-                                      if (totalCost > (user.balance || 0)) {
-                                        toast({ title: 'Insufficient Balance', description: `You need ${formatCurrency(totalCost - (user.balance || 0))} more.`, variant: 'destructive' })
-                                        return
-                                      }
-
-                                      ops.push(newPos)
-                                      localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(ops))
-                                      
-                                      // Save to database
-                                      await fetch("/api/options/save", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ 
-                                          email: user.email,
-                                          options: ops 
-                                        }),
-                                      }).catch(err => console.warn("Failed to save options to database:", err))
-                                      
-                                      // Deduct balance using API
-                                      const balanceResult = await deductBalance(totalCost, "BUY", `${pos.index}-${pos.strike}-${pos.type}`, qtyBuy, current)
-                                      if (!balanceResult.success) {
-                                        toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
-                                        return
-                                      }
-                                      
-                                      try { storeLastTradingPrice(user.email, `${pos.index}-${pos.strike}-${pos.type}`, newPos.price) } catch {}
-                                      toast({ title: 'Order Placed', description: `Bought ${qtyBuy} lot(s) of ${pos.index} ${pos.strike} ${pos.type} @ ${formatCurrency(current)}` })
-                                    } catch (err) {
-                                      console.error(err)
-                                    }
-                                  }}
-                                >
-                                  Buy
-                                </Button>
-
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={async () => {
-                                    try {
-                                      if (!user) return
-                                      const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
-                                      const ops: any[] = JSON.parse(rawOps)
-                                      const position = ops.find((p) => p.id === pos.id)
-                                      if (!position) return
-
-                                      const qtyStr = window.prompt('How many lots to sell/close?', '1')
-                                      const qtySell = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
-                                      if (!qtySell) return
-
-                                      if (qtySell > position.quantity) {
-                                        toast({ title: 'Invalid Quantity', description: `You only have ${position.quantity} lot(s) in this position.`, variant: 'destructive' })
-                                        return
-                                      }
-
-                                      const strikeKey = `${position.index}-${position.strike}-${position.type}`
-                                      const current = getLastTradingPrice(user.email, strikeKey) ?? position.price
-
-                                      // Calculate P&L for the portion being sold (for display only)
-                                      const pnl = calculatePnL(position.price, current, qtySell * position.lotSize)
-
-                                      // Credit = current market price × quantity × lot size
-                                      const credit = current * qtySell * position.lotSize
-
-                                      // Add balance using API
-                                      const balanceResult = await addBalance(credit, "SELL", `${position.index}-${position.strike}-${position.type}`, qtySell, current)
-                                      if (!balanceResult.success) {
-                                        toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
-                                        return
-                                      }
-                                      
-                                      storeLastTradingPrice(user.email, strikeKey, current)
-
-                                      // Remove position from portfolio
-                                      let updatedOps: any[] = []
-                                      if (qtySell >= position.quantity) {
-                                        // Remove entire position
-                                        updatedOps = ops.filter((p) => p.id !== position.id)
-                                      } else {
-                                        // Reduce quantity
-                                        updatedOps = ops.map((p) => 
-                                          p.id === position.id 
-                                            ? { ...p, quantity: p.quantity - qtySell, totalValue: p.totalValue - (position.price * qtySell * position.lotSize) } 
-                                            : p
-                                        )
-                                      }
-                                      
-                                      localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(updatedOps))
-                                      
-                                      // Sync to database
-                                      await fetch("/api/options/save", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ 
-                                          email: user.email,
-                                          options: updatedOps
-                                        }),
-                                      }).catch(err => console.warn("Failed to save options to database:", err))
-
-                                      toast({ 
-                                        title: qtySell >= position.quantity ? 'Position Closed' : 'Position Partially Closed', 
-                                        description: `Closed ${qtySell} lot(s) of ${position.index} ${position.strike} ${position.type} with ₹${Math.abs(pnl).toFixed(2)} ${pnl >= 0 ? 'profit' : 'loss'}`, 
-                                        variant: pnl >= 0 ? undefined : 'destructive' 
-                                      })
-                                      
-                                      // Refresh the page to update portfolio
-                                      setTimeout(() => window.location.reload(), 1000)
-                                    } catch (err) {
-                                      console.error(err)
-                                      toast({ title: 'Error', description: 'Failed to close position', variant: 'destructive' })
-                                    }
-                                  }}
-                                >
-                                  Sell
-                                </Button>
-                              </div>
+                        <>
+                          {/* Mobile View */}
+                          <div key={pos.id} className="md:hidden rounded-lg bg-secondary/60 border border-border/50 p-3">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <div className="font-semibold text-base">{pos.index} {Number(pos.strike).toLocaleString("en-IN")} {pos.type}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{pos.action} • {pos.quantity} lot(s) @ ₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")} = ₹{Number((pos.price * pos.quantity * pos.lotSize).toFixed(2)).toLocaleString("en-IN")}</div>
                             </div>
+                            <div className="text-right">
+                              <div className={`font-mono font-semibold text-sm ${pnl >= 0 ? 'text-primary' : 'text-destructive'}`}>{pnl >= 0 ? '+' : '-'}₹{Number(Math.abs(pnl).toFixed(2)).toLocaleString("en-IN")}</div>
+                              <div className={`text-xs ${pnlPercent >= 0 ? 'text-primary' : 'text-destructive'} font-medium mt-1`}>{pnlPercent >= 0 ? '+' : '-'}{Math.abs(pnlPercent).toFixed(2)}%</div>
+                            </div>
+                          </div>
+                          
+                          {/* Entry and Now price boxes */}
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div className="bg-background/50 rounded border border-border/60 p-2">
+                              <p className="text-xs text-muted-foreground mb-1">Entry</p>
+                              <p className="font-mono font-semibold text-sm">₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")}</p>
+                            </div>
+                            <div className="bg-background/50 rounded border border-border/60 p-2">
+                              <p className="text-xs text-muted-foreground mb-1">Now</p>
+                              <p className="font-mono font-semibold text-sm">₹{Number(currentPrice.toFixed(2)).toLocaleString("en-IN")}</p>
+                            </div>
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-green-600/90 hover:bg-green-700 text-white font-semibold flex-1"
+                              onClick={async () => {
+                                try {
+                                  if (!user) return
+                                  const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
+                                  const ops: any[] = JSON.parse(rawOps)
+
+                                  const qtyStr = window.prompt('How many lots to buy?', '1')
+                                  const qtyBuy = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                  if (!qtyBuy) return
+
+                                  const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
+                                  const current = getLastTradingPrice(user.email, strikeKey) ?? pos.price
+
+                                  const newPos = {
+                                    id: Math.random().toString(36).substring(7),
+                                    type: pos.type,
+                                    action: 'BUY',
+                                    index: pos.index,
+                                    strike: pos.strike,
+                                    symbol: `${pos.index}-${pos.strike}-${pos.type}`,
+                                    price: current,
+                                    quantity: qtyBuy,
+                                    lotSize: pos.lotSize || 50,
+                                    totalValue: current * qtyBuy * (pos.lotSize || 50),
+                                    timestamp: Date.now(),
+                                  }
+
+                                  const totalCost = newPos.totalValue
+                                  if (totalCost > (user.balance || 0)) {
+                                    toast({ title: 'Insufficient Balance', description: `You need ${formatCurrency(totalCost - (user.balance || 0))} more.`, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  ops.push(newPos)
+                                  localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(ops))
+                                  
+                                  await fetch("/api/options/save", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ 
+                                      email: user.email,
+                                      options: ops 
+                                    }),
+                                  }).catch(err => console.warn("Failed to save options to database:", err))
+                                  
+                                  const balanceResult = await deductBalance(totalCost, "BUY", `${pos.index}-${pos.strike}-${pos.type}`, qtyBuy, current)
+                                  if (!balanceResult.success) {
+                                    toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                    return
+                                  }
+                                  
+                                  try { storeLastTradingPrice(user.email, `${pos.index}-${pos.strike}-${pos.type}`, newPos.price) } catch {}
+                                  toast({ title: 'Order Placed', description: `Bought ${qtyBuy} lot(s) of ${pos.index} ${pos.strike} ${pos.type} @ ${formatCurrency(current)}` })
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Buy
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-red-600/90 hover:bg-red-700 text-white font-semibold flex-1"
+                              onClick={async () => {
+                                try {
+                                  if (!user) return
+                                  const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
+                                  const ops: any[] = JSON.parse(rawOps)
+                                  const position = ops.find((p) => p.id === pos.id)
+                                  if (!position) return
+
+                                  const qtyStr = window.prompt('How many lots to sell/close?', '1')
+                                  const qtySell = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                  if (!qtySell) return
+                                  if (qtySell > position.quantity) {
+                                    toast({ title: 'Not Enough Lots', description: `You only have ${position.quantity} lot(s).`, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
+                                  const current = getLastTradingPrice(user.email, strikeKey) ?? pos.price
+
+                                  const closedValue = current * qtySell * (position.lotSize || 50)
+                                  const remainingQty = position.quantity - qtySell
+
+                                  if (remainingQty === 0) {
+                                    ops.splice(ops.findIndex((p) => p.id === pos.id), 1)
+                                  } else {
+                                    const idx = ops.findIndex((p) => p.id === pos.id)
+                                    ops[idx] = { ...position, quantity: remainingQty }
+                                  }
+
+                                  localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(ops))
+                                  
+                                  await fetch("/api/options/save", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ 
+                                      email: user.email,
+                                      options: ops 
+                                    }),
+                                  }).catch(err => console.warn("Failed to save options to database:", err))
+
+                                  const balanceResult = await addBalance(closedValue, "SELL", `${pos.index}-${pos.strike}-${pos.type}`, qtySell, current)
+                                  if (!balanceResult.success) {
+                                    toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  try { storeLastTradingPrice(user.email, `${pos.index}-${pos.strike}-${pos.type}`, current) } catch {}
+                                  toast({ title: 'Closed', description: `Closed ${qtySell} lot(s) of ${pos.index} ${pos.strike} ${pos.type}` })
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Sell
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Desktop/Tablet View */}
+                        <div key={pos.id} className="hidden md:flex md:items-center md:justify-between p-3 md:p-4 rounded-lg bg-secondary/50 border border-border/30">
+                          {/* Title and details */}
+                          <div className="flex-1">
+                            <div className="font-semibold text-base">{pos.index} {Number(pos.strike).toLocaleString("en-IN")} {pos.type}</div>
+                            <div className="text-xs md:text-sm text-muted-foreground mt-0.5">{pos.action} • {pos.quantity} lot(s) @ ₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")} = ₹{Number((pos.price * pos.quantity * pos.lotSize).toFixed(2)).toLocaleString("en-IN")}</div>
+                          </div>
+                          
+                          {/* Entry and Current prices */}
+                          <div className="text-center mx-6">
+                            <div className="text-xs md:text-sm text-muted-foreground mb-1">Entry</div>
+                            <span className="font-mono font-semibold text-sm">₹{Number(pos.price.toFixed(2)).toLocaleString("en-IN")}</span>
+                          </div>
+                          <div className="text-center mx-6">
+                            <div className="text-xs md:text-sm text-muted-foreground mb-1">Now</div>
+                            <span className="font-mono font-semibold text-sm">₹{Number(currentPrice.toFixed(2)).toLocaleString("en-IN")}</span>
+                          </div>
+
+                          {/* P&L */}
+                          <div className="text-right mx-6">
+                            <div className={`font-mono font-semibold text-base ${pnl >= 0 ? 'text-primary' : 'text-destructive'}`}>{pnl >= 0 ? '+' : '-'}₹{Number(Math.abs(pnl).toFixed(2)).toLocaleString("en-IN")}</div>
+                            <div className={`text-xs md:text-sm ${pnlPercent >= 0 ? 'text-primary' : 'text-destructive'} font-medium`}>{pnlPercent >= 0 ? '+' : '-'}{Math.abs(pnlPercent).toFixed(2)}%</div>
+                          </div>
+                          {/* Action buttons */}
+                          <div className="ml-4 flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-green-600/90 hover:bg-green-700 text-white font-semibold"
+                              onClick={async () => {
+                                try {
+                                  if (!user) return
+                                  const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
+                                  const ops: any[] = JSON.parse(rawOps)
+
+                                  const qtyStr = window.prompt('How many lots to buy?', '1')
+                                  const qtyBuy = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                  if (!qtyBuy) return
+
+                                  const strikeKey = `${pos.index}-${pos.strike}-${pos.type}`
+                                  const current = getLastTradingPrice(user.email, strikeKey) ?? pos.price
+
+                                  const newPos = {
+                                    id: Math.random().toString(36).substring(7),
+                                    type: pos.type,
+                                    action: 'BUY',
+                                    index: pos.index,
+                                    strike: pos.strike,
+                                    symbol: `${pos.index}-${pos.strike}-${pos.type}`,
+                                    price: current,
+                                    quantity: qtyBuy,
+                                    lotSize: pos.lotSize || 50,
+                                    totalValue: current * qtyBuy * (pos.lotSize || 50),
+                                    timestamp: Date.now(),
+                                  }
+
+                                  const totalCost = newPos.totalValue
+                                  if (totalCost > (user.balance || 0)) {
+                                    toast({ title: 'Insufficient Balance', description: `You need ${formatCurrency(totalCost - (user.balance || 0))} more.`, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  ops.push(newPos)
+                                  localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(ops))
+                                  
+                                  await fetch("/api/options/save", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ 
+                                      email: user.email,
+                                      options: ops 
+                                    }),
+                                  }).catch(err => console.warn("Failed to save options to database:", err))
+                                  
+                                  const balanceResult = await deductBalance(totalCost, "BUY", `${pos.index}-${pos.strike}-${pos.type}`, qtyBuy, current)
+                                  if (!balanceResult.success) {
+                                    toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                    return
+                                  }
+                                  
+                                  try { storeLastTradingPrice(user.email, `${pos.index}-${pos.strike}-${pos.type}`, newPos.price) } catch {}
+                                  toast({ title: 'Order Placed', description: `Bought ${qtyBuy} lot(s) of ${pos.index} ${pos.strike} ${pos.type} @ ${formatCurrency(current)}` })
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Buy
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              className="text-xs px-2.5 h-8 bg-red-600/90 hover:bg-red-700 text-white font-semibold"
+                              onClick={async () => {
+                                try {
+                                  if (!user) return
+                                  const rawOps = localStorage.getItem(`options_positions_${user.email}`) || '[]'
+                                  const ops: any[] = JSON.parse(rawOps)
+                                  const position = ops.find((p) => p.id === pos.id)
+                                  if (!position) return
+
+                                  const qtyStr = window.prompt('How many lots to sell/close?', '1')
+                                  const qtySell = Math.max(0, Number.parseInt(qtyStr || '0') || 0)
+                                  if (!qtySell) return
+
+                                  if (qtySell > position.quantity) {
+                                    toast({ title: 'Not Enough Lots', description: `You only have ${position.quantity} lot(s).`, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  const strikeKey = `${position.index}-${position.strike}-${position.type}`
+                                  const current = getLastTradingPrice(user.email, strikeKey) ?? position.price
+
+                                  const closedValue = current * qtySell * (position.lotSize || 50)
+                                  const remainingQty = position.quantity - qtySell
+
+                                  if (remainingQty === 0) {
+                                    ops.splice(ops.findIndex((p) => p.id === pos.id), 1)
+                                  } else {
+                                    const idx = ops.findIndex((p) => p.id === pos.id)
+                                    ops[idx] = { ...position, quantity: remainingQty }
+                                  }
+
+                                  localStorage.setItem(`options_positions_${user.email}`, JSON.stringify(ops))
+                                  
+                                  await fetch("/api/options/save", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ 
+                                      email: user.email,
+                                      options: ops
+                                    }),
+                                  }).catch(err => console.warn("Failed to save options to database:", err))
+
+                                  const balanceResult = await addBalance(closedValue, "SELL", `${position.index}-${position.strike}-${position.type}`, qtySell, current)
+                                  if (!balanceResult.success) {
+                                    toast({ title: 'Transaction Failed', description: balanceResult.error, variant: 'destructive' })
+                                    return
+                                  }
+
+                                  try { storeLastTradingPrice(user.email, `${position.index}-${position.strike}-${position.type}`, current) } catch {}
+                                  toast({ title: 'Closed', description: `Closed ${qtySell} lot(s) of ${position.index} ${position.strike} ${position.type}` })
+                                } catch (err) {
+                                  console.error(err)
+                                }
+                              }}
+                            >
+                              Sell
+                            </Button>
+                          </div>
+                        </div>
+                      </>
                       )
                     })}
                   </div>
